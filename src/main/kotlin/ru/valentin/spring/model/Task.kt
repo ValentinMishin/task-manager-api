@@ -36,7 +36,6 @@ data class Task(
         joinColumns = [JoinColumn(name = "task_id")],
         inverseJoinColumns = [JoinColumn(name = "tag_id")]
     )
-    @OrderBy("type ASC") // Сортировка задач по приоритету при загрузке
     var tags: MutableSet<Tag> = mutableSetOf()
 ) {
     @PreUpdate

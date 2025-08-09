@@ -20,7 +20,7 @@ data class Tag(
     var updatedAt: Timestamp? = null,
 
     @ManyToMany(mappedBy = "tags", cascade = [CascadeType.ALL])
-    @OrderBy("type ASC") // Сортировка задач по приоритету
+    @OrderBy("type.priority DESC") // Сортировка по приоритету типа задачи
     var tasks: MutableSet<Task> = mutableSetOf()
 ) {
     @PreUpdate
@@ -32,6 +32,4 @@ data class Tag(
     fun onRemove() {
         tasks.forEach { it.tags.remove(this) }
     }
-
-    fun hasTasks(): Boolean = tasks.isNotEmpty()
 }
