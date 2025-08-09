@@ -1,8 +1,9 @@
-package ru.valentin.spring.model
+package ru.valentin.model
 
 import javax.persistence.*
 import java.time.LocalDate
 import java.sql.Timestamp
+import javax.validation.constraints.FutureOrPresent
 
 @Entity
 @Table(name = "task")
@@ -22,6 +23,7 @@ data class Task(
     var description: String? = null,
 
     @Column(nullable = false)
+    @field:FutureOrPresent(message = "Task planned date must be present or Future")
     var dueDate: LocalDate,
 
     @Column(nullable = false, updatable = false)

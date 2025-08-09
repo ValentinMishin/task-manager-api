@@ -1,4 +1,4 @@
-package ru.valentin.spring.model
+package ru.valentin.model
 
 import javax.persistence.*
 
@@ -19,8 +19,8 @@ data class TaskType(
     val description: String? = null
 ) {
     companion object {
-        fun createDefaultTypes(): List<TaskType> {
-            return listOf(
+        fun createDefaultTypes(): MutableList<TaskType> {
+            return mutableListOf(
                 TaskType(code = "regular", priority = 1,
                     description = "Обычная задача"),
                 TaskType(code = "important", priority = 2,

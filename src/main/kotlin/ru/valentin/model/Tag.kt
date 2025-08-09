@@ -1,4 +1,4 @@
-package ru.valentin.spring.model
+package ru.valentin.model
 
 import javax.persistence.*
 import java.sql.Timestamp
@@ -20,7 +20,7 @@ data class Tag(
     var updatedAt: Timestamp? = null,
 
     @ManyToMany(mappedBy = "tags", cascade = [CascadeType.ALL])
-    @OrderBy("type.priority DESC") // Сортировка по приоритету типа задачи
+    @OrderBy("type.priority DESC, dueDate Asc")
     var tasks: MutableSet<Task> = mutableSetOf()
 ) {
     @PreUpdate
@@ -32,4 +32,6 @@ data class Tag(
     fun onRemove() {
         tasks.forEach { it.tags.remove(this) }
     }
+
+    fun hasTasks(): Boolean = tasks.isNotEmpty()
 }
