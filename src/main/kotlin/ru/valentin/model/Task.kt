@@ -46,12 +46,57 @@ data class Task(
     }
 
     fun addTag(tag: Tag) {
-        tags.add(tag)
-        tag.tasks.add(this)
+        if (tags.add(tag))
+            tag.tasks.add(this)
+    }
+
+    fun addAllTags(listTags: List<Tag>) {
+        for (tag in listTags) {
+            addTag(tag)
+        }
     }
 
     fun removeTag(tag: Tag) {
-        tags.remove(tag)
-        tag.tasks.remove(this)
+        if (tags.remove(tag))
+            tag.tasks.remove(this)
+    }
+
+    fun removeAllTags(listTags: List<Tag>) {
+        for (tag in listTags) {
+            removeTag(tag)
+        }
+    }
+
+    override fun toString(): String {
+        return "Task(id=$id, title='$title', type=${type.id}, description=$description, dueDate=$dueDate, createdAt=$createdAt, updatedAt=$updatedAt, tags=${tags.map { it.id }})"
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Task
+
+        if (id != other.id) return false
+        if (title != other.title) return false
+        if (type != other.type) return false
+        if (description != other.description) return false
+        if (dueDate != other.dueDate) return false
+        if (createdAt != other.createdAt) return false
+        if (updatedAt != other.updatedAt) return false
+        if (tags != other.tags) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = id.hashCode()
+        result = 31 * result + title.hashCode()
+        result = 31 * result + type.hashCode()
+        result = 31 * result + (description?.hashCode() ?: 0)
+        result = 31 * result + dueDate.hashCode()
+        result = 31 * result + createdAt.hashCode()
+        result = 31 * result + (updatedAt?.hashCode() ?: 0)
+        return result
     }
 }

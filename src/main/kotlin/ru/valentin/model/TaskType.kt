@@ -19,8 +19,8 @@ data class TaskType(
     val description: String? = null
 ) {
     companion object {
-        fun createDefaultTypes(): MutableList<TaskType> {
-            return mutableListOf(
+        fun createDefaultTypes(): MutableSet<TaskType> {
+            return mutableSetOf(
                 TaskType(code = "regular", priority = 1,
                     description = "Обычная задача"),
                 TaskType(code = "important", priority = 2,

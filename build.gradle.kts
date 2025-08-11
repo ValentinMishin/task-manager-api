@@ -46,8 +46,21 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
-}
 
+    testLogging {
+        events = setOf(
+            org.gradle.api.tasks.testing.logging.TestLogEvent.PASSED,
+            org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED,
+            org.gradle.api.tasks.testing.logging.TestLogEvent.SKIPPED,
+            org.gradle.api.tasks.testing.logging.TestLogEvent.STANDARD_OUT,
+            org.gradle.api.tasks.testing.logging.TestLogEvent.STANDARD_ERROR
+        )
+        showExceptions = true
+        showCauses = true
+        showStackTraces = true
+        showStandardStreams = true
+    }
+}
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(11)

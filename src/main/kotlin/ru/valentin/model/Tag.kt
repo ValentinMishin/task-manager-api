@@ -34,4 +34,25 @@ data class Tag(
     }
 
     fun hasTasks(): Boolean = tasks.isNotEmpty()
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Tag
+
+        if (id != other.id) return false
+        if (title != other.title) return false
+        if (createdAt != other.createdAt) return false
+        if (updatedAt != other.updatedAt) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = id.hashCode()
+        result = 31 * result + title.hashCode()
+        result = 31 * result + createdAt.hashCode()
+        result = 31 * result + (updatedAt?.hashCode() ?: 0)
+        return result
+    }
 }
