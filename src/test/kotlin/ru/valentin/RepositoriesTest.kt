@@ -1,6 +1,5 @@
 package ru.valentin
 
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
@@ -8,9 +7,9 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.test.annotation.Commit
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.TestExecutionListeners
-import org.springframework.transaction.annotation.Isolation
 import ru.valentin.model.Tag
 import ru.valentin.model.Task
+import ru.valentin.model.TaskType
 import ru.valentin.repository.TagRepository
 import ru.valentin.repository.TaskRepository
 import ru.valentin.repository.TaskTypeRepository
@@ -34,15 +33,19 @@ class RepositoriesTest {
     @Autowired
     private lateinit var tagRepository: TagRepository
 
+    private lateinit var regularTaskType: TaskType
+    private lateinit var importantTaskType: TaskType
+    private lateinit var urgentTaskType: TaskType
     @Test
     @Commit
     fun testSaveTaskAndTag() {
-        val regularTaskType = taskTypeRepository.findByCode("regular") ?: throw NoSuchElementException()
-        val importantTaskType = taskTypeRepository.findByCode("important") ?: throw NoSuchElementException()
-        val urgentTaskType = taskTypeRepository.findByCode("urgent") ?: throw NoSuchElementException()
+        regularTaskType = taskTypeRepository.findByCode("regular") ?: throw NoSuchElementException()
+        importantTaskType = taskTypeRepository.findByCode("important") ?: throw NoSuchElementException()
+        urgentTaskType = taskTypeRepository.findByCode("urgent") ?: throw NoSuchElementException()
 
-        val onlyTag = Tag(title = "Багфикс").let { tagRepository.save(it) }
-        onlyTag.also { assertEquals("Багфикс", it.title)}
+        val tagBugfix = Tag(title = "Багфикс")
+            .let { tagRepository.save(it) }
+            .also { assertEquals("Багфикс", it.title)}
 
         val onlyTask = Task(
             title = "Обработать запрос в поддержку",
@@ -50,29 +53,79 @@ class RepositoriesTest {
             description = "Пользователь сообщил о проблеме с пользовательским интерфейсом",
             dueDate = LocalDate.now().plusDays(1)
         ).let { taskRepository.save(it) }
-        onlyTask.also { assertEquals("Обработать запрос в поддержку", it.title) }
-
+            .also { assertEquals("Обработать запрос в поддержку", it.title) }
         //c Задачами
-        var tagWithTasks : Tag = Tag(title = "Поддержка")
+        val tagSupport = Tag(title = "Поддержка")
         val task1 = Task(
             title = "Обработать запрос в поддержку",
             type = regularTaskType,
             description = "Пользователь сообщил о проблеме с авторизацией",
             dueDate = LocalDate.now().plusDays(1)
-        ).apply { addTag(tagWithTasks) }
+        ).apply { addTag(tagSupport) }
         val task2 = Task(
             title = "Обновить FAQ поддержки",
             type = importantTaskType,
             description = "Добавить новые частые вопросы по платежам",
             dueDate = LocalDate.now().plusDays(3)
-        ).apply { addTag(tagWithTasks) }
-        tagWithTasks = tagWithTasks.let { tagRepository.saveAndFlush(it) }
+        ).apply { addTag(tagSupport) }
+        tagSupport.let { tagRepository.save(it) }
             .also { assertEquals(2, it.tasks.size) }
     }
 
+    @Commit
     @Test
     fun testUpdate() {
-        println("UPDATE TEST")
-    }
+        regularTaskType = taskTypeRepository.findByCode("regular") ?: throw NoSuchElementException()
+        importantTaskType = taskTypeRepository.findByCode("important") ?: throw NoSuchElementException()
+        urgentTaskType = taskTypeRepository.findByCode("urgent") ?: throw NoSuchElementException()
 
+        //создать без тегов
+        val tagBugfix = Tag(title = "Багфикс")
+        var savedBugfix = tagRepository.save(tagBugfix)
+
+        //изменить заголовок, добавить 2 задачи
+        savedBugfix.title = "Багфикс(обновленный)"
+        val task1 = Task(
+            title = "Исправить падение приложения при оплате",
+            type = urgentTaskType,
+            description = "При нажатии 'Оплатить' в корзине приложение крашится на iOS 15.4",
+            dueDate = LocalDate.now().plusDays(1)
+        ).apply { addTag(savedBugfix) }
+        var task2 = Task(
+            title = "Починить перекрытие текста в мобильной версии",
+            type = importantTaskType,
+            description = "На iPhone SE текст кнопки 'Подробнее' вылезает за границы",
+            dueDate = LocalDate.now().plusDays(3),
+        ).apply { addTag(savedBugfix) }
+        var savedTask1 = taskRepository.save(task1)
+//        var savedTask2 = taskRepository.save(task2)
+        taskRepository.save(task2)
+//        добавить задачу 3
+        val task3 = Task(
+            title = "Исправить 500 ошибку в /api/v1/profile",
+            type = importantTaskType,
+            description = "Сервер возвращает 500 при GET-запросе с пустым токеном",
+            dueDate = LocalDate.now().plusDays(2),
+        ).apply { addTag(savedBugfix) }
+        var savedTask3 = taskRepository.save(task3)
+
+//        удалить у задачи2 тег
+        savedBugfix = tagRepository.findById(savedBugfix.id).orElseThrow()
+//        savedTask2 = savedTask2
+//            .apply { removeTag(savedBugfix) }
+//            .let { taskRepository.save(it)}
+//
+//        savedTask2 = savedTask2
+//            .apply {
+//                title = "ПОЧИНИТЬ"
+//                description = "НА АЙФОНЕ"
+//            }
+//            .let {taskRepository.save(it) }
+        task2 . apply { removeTag(savedBugfix) }.let { taskRepository.save(it) }
+        task2.apply { title = "REPAIR" }.let { taskRepository.save(it) }
+        println(task2)
+//        удалить задачу2
+//        taskRepository.delete(savedTask2)
+        taskRepository.delete(task2)
+    }
 }

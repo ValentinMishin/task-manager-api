@@ -3,6 +3,7 @@ package ru.valentin.model
 import javax.persistence.*
 import java.time.LocalDate
 import java.sql.Timestamp
+import javax.swing.text.html.CSS
 import javax.validation.constraints.FutureOrPresent
 
 @Entity
@@ -46,8 +47,8 @@ data class Task(
     }
 
     fun addTag(tag: Tag) {
-        if (tags.add(tag))
-            tag.tasks.add(this)
+        tags.add(tag)
+        tag.tasks.add(this)
     }
 
     fun addAllTags(listTags: List<Tag>) {
@@ -57,14 +58,21 @@ data class Task(
     }
 
     fun removeTag(tag: Tag) {
-        if (tags.remove(tag))
-            tag.tasks.remove(this)
+        tags.remove(tag)
+        tag.tasks.remove(this)
     }
 
-    fun removeAllTags(listTags: List<Tag>) {
+    fun removeTags(listTags: List<Tag>) {
         for (tag in listTags) {
             removeTag(tag)
         }
+    }
+
+    fun removeAllTags() {
+        for (tag in tags) {
+            tag.tasks.remove(this)
+        }
+        tags.clear()
     }
 
     override fun toString(): String {
@@ -84,7 +92,6 @@ data class Task(
         if (dueDate != other.dueDate) return false
         if (createdAt != other.createdAt) return false
         if (updatedAt != other.updatedAt) return false
-        if (tags != other.tags) return false
 
         return true
     }

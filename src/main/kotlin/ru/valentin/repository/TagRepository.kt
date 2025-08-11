@@ -6,4 +6,5 @@ import ru.valentin.model.Tag
 import java.util.Optional
 
 interface TagRepository : JpaRepository<Tag, Long> {
+    fun findByTitle(title: String): Tag?
 }
