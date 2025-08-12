@@ -1,0 +1,32 @@
+CREATE TABLE task_type (
+    id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    code VARCHAR(50) NOT NULL UNIQUE,
+    priority INT NOT NULL,
+    description TEXT
+);
+
+CREATE TABLE tag (
+    id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    title VARCHAR(255) NOT NULL UNIQUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NULL
+);
+
+CREATE TABLE task (
+    id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    title VARCHAR(255) NOT NULL,
+    type_id BIGINT NOT NULL,
+    description TEXT,
+    due_date DATE NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NULL,
+    FOREIGN KEY (type_id) REFERENCES task_type(id)
+);
+
+CREATE TABLE task_tag (
+    task_id BIGINT NOT NULL,
+    tag_id BIGINT NOT NULL,
+    PRIMARY KEY (task_id, tag_id),
+    FOREIGN KEY (task_id) REFERENCES task(id),
+    FOREIGN KEY (tag_id) REFERENCES tag(id)
+);

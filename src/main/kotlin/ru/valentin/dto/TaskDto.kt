@@ -10,6 +10,6 @@ data class TaskDto(
     val description: String?,
     val dueDate: LocalDate,
     val tags: Set<TagDto>,
-    val createdAt: LocalDateTime,
+    val createdAt: LocalDateTime?,
     val updatedAt: LocalDateTime?
 )

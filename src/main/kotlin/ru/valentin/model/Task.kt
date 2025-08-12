@@ -4,9 +4,7 @@ import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.UpdateTimestamp
 import javax.persistence.*
 import java.time.LocalDate
-import java.sql.Timestamp
 import java.time.LocalDateTime
-import javax.swing.text.html.CSS
 import javax.validation.constraints.FutureOrPresent
 
 @Entity
@@ -46,40 +44,15 @@ data class Task(
     )
     var tags: MutableSet<Tag> = mutableSetOf()
 ) {
-//    @PreUpdate
-//    fun onUpdate() {
-//        updatedAt = LocalDateTime.now()
-//    }
 
-    fun addTag(tag: Tag) {
+    fun addTagWithUpdateTasks(tag: Tag) {
         tags.add(tag)
         tag.tasks.add(this)
     }
 
-    fun addAllTags(listTags: List<Tag>) {
-        for (tag in listTags) {
-            addTag(tag)
-        }
-    }
-
-    fun removeTag(tag: Tag) {
+    fun removeTagWithUpdateTasks(tag: Tag) {
         tags.remove(tag)
         tag.tasks.remove(this)
-    }
-
-    fun removeTags(listTags: List<Tag>) {
-        for (tag in listTags) {
-            removeTag(tag)
-        }
-    }
-
-    fun removeAllTags() {
-        if (tags.isNotEmpty()) {
-            for (tag in tags) {
-                tag.tasks.remove(this)
-            }
-            tags.clear()
-        }
     }
 
     override fun toString(): String {

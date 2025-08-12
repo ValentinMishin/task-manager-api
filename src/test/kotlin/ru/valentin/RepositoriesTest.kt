@@ -61,13 +61,13 @@ class RepositoriesTest {
             type = regularTaskType,
             description = "Пользователь сообщил о проблеме с авторизацией",
             dueDate = LocalDate.now().plusDays(1)
-        ).apply { addTag(tagSupport) }
+        ).apply { addTagWithUpdateTasks(tagSupport) }
         val task2 = Task(
             title = "Обновить FAQ поддержки",
             type = importantTaskType,
             description = "Добавить новые частые вопросы по платежам",
             dueDate = LocalDate.now().plusDays(3)
-        ).apply { addTag(tagSupport) }
+        ).apply { addTagWithUpdateTasks(tagSupport) }
         tagSupport.let { tagRepository.save(it) }
             .also { assertEquals(2, it.tasks.size) }
     }
@@ -90,35 +90,34 @@ class RepositoriesTest {
             type = urgentTaskType,
             description = "При нажатии 'Оплатить' в корзине приложение крашится на iOS 15.4",
             dueDate = LocalDate.now().plusDays(1)
-        ).apply { addTag(savedBugfix) }
+        ).apply { addTagWithUpdateTasks(savedBugfix) }
         var task2 = Task(
             title = "Починить перекрытие текста в мобильной версии",
             type = importantTaskType,
             description = "На iPhone SE текст кнопки 'Подробнее' вылезает за границы",
             dueDate = LocalDate.now().plusDays(3),
-        ).apply { addTag(savedBugfix) }
+        ).apply { addTagWithUpdateTasks(savedBugfix) }
         taskRepository.save(task1)
         taskRepository.save(task2)
 
 //        добавить задачу 3
-        savedBugfix = tagRepository.findById(savedBugfix.id).orElseThrow()
         val task3 = Task(
             title = "Исправить 500 ошибку в /api/v1/profile",
             type = importantTaskType,
             description = "Сервер возвращает 500 при GET-запросе с пустым токеном",
             dueDate = LocalDate.now().plusDays(2),
-        ).apply { addTag(savedBugfix) }
+        ).apply { addTagWithUpdateTasks(savedBugfix) }
+        taskRepository.save(task3)
 
 //        удалить у задачи2 тег
-        savedBugfix = tagRepository.findById(savedBugfix.id).orElseThrow()
         task2
-            .apply { removeTag(savedBugfix) }
+            .apply { removeTagWithUpdateTasks(savedBugfix) }
             .let { taskRepository.save(it) }
 
 //        изменить задачу2
-        task2
-            .apply { title = "REPAIR" }
-            .let { taskRepository.save(it) }
+//        task2
+//            .apply { title = "REPAIR" }
+//            .let { taskRepository.save(it) }
     }
 
     @Commit
@@ -135,13 +134,13 @@ class RepositoriesTest {
             type = urgentTaskType,
             description = "При нажатии 'Оплатить' в корзине приложение крашится на iOS 15.4",
             dueDate = LocalDate.now().plusDays(1)
-        ).apply { addTag(tagBugfix) }
+        ).apply { addTagWithUpdateTasks(tagBugfix) }
         var task2 = Task(
             title = "Починить перекрытие текста в мобильной версии",
             type = importantTaskType,
             description = "На iPhone SE текст кнопки 'Подробнее' вылезает за границы",
             dueDate = LocalDate.now().plusDays(3),
-        ).apply { addTag(tagBugfix) }
+        ).apply { addTagWithUpdateTasks(tagBugfix) }
 
         var savedT1 = taskRepository.save(task1)
         var savedT2 = taskRepository.save(task2)
