@@ -20,10 +20,10 @@ import javax.transaction.Transactional
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("test")
-@TestExecutionListeners(
-    listeners = [DataInitializationTestExecutionListener::class],
-    mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS
-)
+//@TestExecutionListeners(
+//    listeners = [DataInitializationTestExecutionListener::class],
+//    mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS
+//)
 @Transactional
 class ServicesTest {
     private lateinit var service: TaskService

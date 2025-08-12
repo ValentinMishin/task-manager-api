@@ -11,10 +11,10 @@ data class CreateTagDto(
     val title: String,
 
     // Существующие задачи (по ID)
-    val existingTaskIds: Set<Long> = emptySet(),
+    val existingTaskIds: Set<Long>?,
 
     // Новые задачи
-    val newTasks: Set<@Valid NewTaskDto> = emptySet()
+    val newTasks: Set<@Valid NewTaskDto>?
 )
 
 data class NewTaskDto(

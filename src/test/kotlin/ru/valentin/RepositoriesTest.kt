@@ -20,10 +20,10 @@ import kotlin.test.assertEquals
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("test")
-@TestExecutionListeners(
-    listeners = [DataInitializationTestExecutionListener::class],
-    mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS
-)
+//@TestExecutionListeners(
+//    listeners = [DataInitializationTestExecutionListener::class],
+//    mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS
+//)
 @Transactional
 class RepositoriesTest {
     @Autowired
@@ -37,7 +37,6 @@ class RepositoriesTest {
     private lateinit var importantTaskType: TaskType
     private lateinit var urgentTaskType: TaskType
     @Test
-    @Commit
     fun testSaveTaskAndTag() {
         regularTaskType = taskTypeRepository.findByCode("regular") ?: throw NoSuchElementException()
         importantTaskType = taskTypeRepository.findByCode("important") ?: throw NoSuchElementException()
@@ -72,7 +71,6 @@ class RepositoriesTest {
             .also { assertEquals(2, it.tasks.size) }
     }
 
-    @Commit
     @Test
     fun testUpdate() {
         regularTaskType = taskTypeRepository.findByCode("regular") ?: throw NoSuchElementException()
@@ -115,12 +113,11 @@ class RepositoriesTest {
             .let { taskRepository.save(it) }
 
 //        изменить задачу2
-//        task2
-//            .apply { title = "REPAIR" }
-//            .let { taskRepository.save(it) }
+        task2
+            .apply { title = "REPAIR" }
+            .let { taskRepository.save(it) }
     }
 
-    @Commit
     @Test
     fun testDelete() {
         regularTaskType = taskTypeRepository.findByCode("regular") ?: throw NoSuchElementException()

@@ -75,6 +75,17 @@ class TaskService(
         return taskRepository.save(existingTask).toDto()
     }
 
+    fun deleteTask(taskId: Long) {
+        val task = taskRepository.findById(taskId)
+            .orElseThrow { EntityNotFoundException("Task not found with id: $taskId") }
+
+        // Разрываем связи с тегами перед удалением
+        taskRepository.deleteTagsFromTask(taskId)
+
+        // Удаляем саму задачу
+        taskRepository.delete(task)
+    }
+
     private fun processTags(
         existingTagIds: Set<Long>,
         newTags: Set<NewTagDto>
@@ -122,15 +133,4 @@ class TaskService(
         createdAt = createdAt,
         updatedAt = updatedAt
     )
-
-    fun deleteTask(taskId: Long) {
-        val task = taskRepository.findById(taskId)
-            .orElseThrow { EntityNotFoundException("Task not found with id: $taskId") }
-
-        // Разрываем связи с тегами перед удалением
-        taskRepository.deleteTagsFromTask(taskId)
-
-        // Удаляем саму задачу
-        taskRepository.delete(task)
-    }
 }
