@@ -97,35 +97,62 @@ class RepositoriesTest {
             description = "На iPhone SE текст кнопки 'Подробнее' вылезает за границы",
             dueDate = LocalDate.now().plusDays(3),
         ).apply { addTag(savedBugfix) }
-        var savedTask1 = taskRepository.save(task1)
-//        var savedTask2 = taskRepository.save(task2)
+        taskRepository.save(task1)
         taskRepository.save(task2)
+
 //        добавить задачу 3
+        savedBugfix = tagRepository.findById(savedBugfix.id).orElseThrow()
         val task3 = Task(
             title = "Исправить 500 ошибку в /api/v1/profile",
             type = importantTaskType,
             description = "Сервер возвращает 500 при GET-запросе с пустым токеном",
             dueDate = LocalDate.now().plusDays(2),
         ).apply { addTag(savedBugfix) }
-        var savedTask3 = taskRepository.save(task3)
 
 //        удалить у задачи2 тег
         savedBugfix = tagRepository.findById(savedBugfix.id).orElseThrow()
-//        savedTask2 = savedTask2
-//            .apply { removeTag(savedBugfix) }
-//            .let { taskRepository.save(it)}
-//
-//        savedTask2 = savedTask2
-//            .apply {
-//                title = "ПОЧИНИТЬ"
-//                description = "НА АЙФОНЕ"
-//            }
-//            .let {taskRepository.save(it) }
-        task2 . apply { removeTag(savedBugfix) }.let { taskRepository.save(it) }
-        task2.apply { title = "REPAIR" }.let { taskRepository.save(it) }
-        println(task2)
-//        удалить задачу2
-//        taskRepository.delete(savedTask2)
-        taskRepository.delete(task2)
+        task2
+            .apply { removeTag(savedBugfix) }
+            .let { taskRepository.save(it) }
+
+//        изменить задачу2
+        task2
+            .apply { title = "REPAIR" }
+            .let { taskRepository.save(it) }
+    }
+
+    @Commit
+    @Test
+    fun testDelete() {
+        regularTaskType = taskTypeRepository.findByCode("regular") ?: throw NoSuchElementException()
+        importantTaskType = taskTypeRepository.findByCode("important") ?: throw NoSuchElementException()
+        urgentTaskType = taskTypeRepository.findByCode("urgent") ?: throw NoSuchElementException()
+
+        val tagBugfix = Tag(title = "Багфикс")
+
+        val task1 = Task(
+            title = "Исправить падение приложения при оплате",
+            type = urgentTaskType,
+            description = "При нажатии 'Оплатить' в корзине приложение крашится на iOS 15.4",
+            dueDate = LocalDate.now().plusDays(1)
+        ).apply { addTag(tagBugfix) }
+        var task2 = Task(
+            title = "Починить перекрытие текста в мобильной версии",
+            type = importantTaskType,
+            description = "На iPhone SE текст кнопки 'Подробнее' вылезает за границы",
+            dueDate = LocalDate.now().plusDays(3),
+        ).apply { addTag(tagBugfix) }
+
+        var savedT1 = taskRepository.save(task1)
+        var savedT2 = taskRepository.save(task2)
+
+        //связанные задачи
+        val tasksIds = tagRepository.findTaskIdsByTagId(tagBugfix.id)
+//        удаление связей
+        tagRepository.deleteTagRelationships(tagBugfix.id)
+//         удаление задач
+        taskRepository.deleteAllById(tasksIds)
+//         удаление тега
+        tagRepository.deleteById(tagBugfix.id)
     }
 }

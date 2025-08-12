@@ -20,7 +20,7 @@ data class Tag(
     @Column(nullable = true)
     var updatedAt: Timestamp? = null,
 
-    @ManyToMany(mappedBy = "tags", cascade = [CascadeType.ALL])
+    @ManyToMany(mappedBy = "tags")
     @OrderBy("type.priority DESC, dueDate Asc")
     var tasks: MutableSet<Task> = mutableSetOf()
 ) {
@@ -29,12 +29,8 @@ data class Tag(
         updatedAt = Timestamp(System.currentTimeMillis())
     }
 
-    @PreRemove
-    fun onRemove() {
-        tasks.forEach { it.tags.remove(this) }
-    }
-
     fun hasTasks(): Boolean = tasks.isNotEmpty()
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -44,7 +40,6 @@ data class Tag(
         if (id != other.id) return false
         if (title != other.title) return false
         if (createdAt != other.createdAt) return false
-        if (updatedAt != other.updatedAt) return false
 
         return true
     }
@@ -53,7 +48,6 @@ data class Tag(
         var result = id.hashCode()
         result = 31 * result + title.hashCode()
         result = 31 * result + createdAt.hashCode()
-        result = 31 * result + (updatedAt?.hashCode() ?: 0)
         return result
     }
 }

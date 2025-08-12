@@ -69,10 +69,12 @@ data class Task(
     }
 
     fun removeAllTags() {
-        for (tag in tags) {
-            tag.tasks.remove(this)
+        if (tags.isNotEmpty()) {
+            for (tag in tags) {
+                tag.tasks.remove(this)
+            }
+            tags.clear()
         }
-        tags.clear()
     }
 
     override fun toString(): String {
@@ -91,7 +93,6 @@ data class Task(
         if (description != other.description) return false
         if (dueDate != other.dueDate) return false
         if (createdAt != other.createdAt) return false
-        if (updatedAt != other.updatedAt) return false
 
         return true
     }
@@ -103,7 +104,6 @@ data class Task(
         result = 31 * result + (description?.hashCode() ?: 0)
         result = 31 * result + dueDate.hashCode()
         result = 31 * result + createdAt.hashCode()
-        result = 31 * result + (updatedAt?.hashCode() ?: 0)
         return result
     }
 }
