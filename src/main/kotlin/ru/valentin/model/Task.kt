@@ -1,8 +1,11 @@
 package ru.valentin.model
 
+import org.hibernate.annotations.CreationTimestamp
+import org.hibernate.annotations.UpdateTimestamp
 import javax.persistence.*
 import java.time.LocalDate
 import java.sql.Timestamp
+import java.time.LocalDateTime
 import javax.swing.text.html.CSS
 import javax.validation.constraints.FutureOrPresent
 
@@ -28,10 +31,12 @@ data class Task(
     var dueDate: LocalDate,
 
     @Column(nullable = false, updatable = false)
-    var createdAt: Timestamp = Timestamp(System.currentTimeMillis()),
+    @CreationTimestamp
+    var createdAt: LocalDateTime? = null,
 
     @Column(nullable = true)
-    var updatedAt: Timestamp? = null,
+    @UpdateTimestamp
+    var updatedAt: LocalDateTime? = null,
 
     @ManyToMany(cascade = [CascadeType.PERSIST, CascadeType.MERGE])
     @JoinTable(
@@ -41,10 +46,10 @@ data class Task(
     )
     var tags: MutableSet<Tag> = mutableSetOf()
 ) {
-    @PreUpdate
-    fun onUpdate() {
-        updatedAt = Timestamp(System.currentTimeMillis())
-    }
+//    @PreUpdate
+//    fun onUpdate() {
+//        updatedAt = LocalDateTime.now()
+//    }
 
     fun addTag(tag: Tag) {
         tags.add(tag)

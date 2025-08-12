@@ -1,8 +1,10 @@
 package ru.valentin.model
 
+import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.DynamicUpdate
 import javax.persistence.*
 import java.sql.Timestamp
+import java.time.LocalDateTime
 
 @Entity
 @Table(name = "tag")
@@ -15,10 +17,11 @@ data class Tag(
     var title: String,
 
     @Column(nullable = false, updatable = false)
-    var createdAt: Timestamp = Timestamp(System.currentTimeMillis()),
+    @CreationTimestamp
+    var createdAt: LocalDateTime? = null,
 
     @Column(nullable = true)
-    var updatedAt: Timestamp? = null,
+    var updatedAt: LocalDateTime? = null,
 
     @ManyToMany(mappedBy = "tags")
     @OrderBy("type.priority DESC, dueDate Asc")
@@ -26,7 +29,7 @@ data class Tag(
 ) {
     @PreUpdate
     fun onUpdate() {
-        updatedAt = Timestamp(System.currentTimeMillis())
+        updatedAt = LocalDateTime.now()
     }
 
     fun hasTasks(): Boolean = tasks.isNotEmpty()

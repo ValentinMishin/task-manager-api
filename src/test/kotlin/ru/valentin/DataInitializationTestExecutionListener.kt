@@ -43,12 +43,12 @@ class DataInitializationTestExecutionListener()
         val tag8 = Tag(title = "Оптимизация")//8
 //        val tag9 = Tag(title = "Поддержка")//9
 
-        val task0 = Task(
-            title = "Обновить документацию API",
-            type = regular,
-            description = "Актуализировать Swagger-документацию",
-            dueDate = LocalDate.now().plusDays(14) // Разработка, Документация
-        ).apply { addAllTags(listOf(tag0,tag2)) }
+//        val task0 = Task(
+//            title = "Обновить документацию API",
+//            type = regular,
+//            description = "Актуализировать Swagger-документацию",
+//            dueDate = LocalDate.now().plusDays(14) // Разработка, Документация
+//        ).apply { addAllTags(listOf(tag0,tag2)) }
 
 //        val tasks = mutableListOf(
 //                Task(
