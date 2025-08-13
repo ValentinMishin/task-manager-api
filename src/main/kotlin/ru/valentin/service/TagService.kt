@@ -1,5 +1,6 @@
 package ru.valentin.service
 
+import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import ru.valentin.dto.select.tag.TagNoTasksDTO
 import ru.valentin.dto.select.tag.TagWithTasksDTO
@@ -8,6 +9,7 @@ import ru.valentin.dto.modifying.request.CreateTagDto
 import ru.valentin.dto.modifying.request.NewTaskDto
 import ru.valentin.dto.modifying.response.DeleteTagResponse
 import ru.valentin.dto.modifying.request.UpdateTagRequest
+import ru.valentin.exception.TagHasNoTasksException
 import ru.valentin.model.Tag
 import ru.valentin.model.Task
 import ru.valentin.repository.TagRepository
@@ -15,6 +17,7 @@ import ru.valentin.repository.TaskRepository
 import ru.valentin.repository.TaskTypeRepository
 import javax.persistence.EntityNotFoundException
 
+@Service
 open class TagService (
     private val taskRepository: TaskRepository,
     private val tagRepository: TagRepository,
@@ -103,12 +106,15 @@ open class TagService (
     }
 
     // 4. Получение тега по идентификатору с задачами, сортированными по приоритету
+    @Transactional(readOnly = true)
     fun findTagWithTasksSortedByPriority(tagId: Long): TagWithTasksDTO {
         val tagWithTasks = tagRepository.findById(tagId)
-            .orElseThrow{ EntityNotFoundException("Tag not found with id: $tagId") }
+            .orElseThrow{ EntityNotFoundException("Тег с ID $tagId не найден в базе данных") }
+
         if (!tagRepository.hasTask(tagWithTasks.id)) {
-            throw EntityNotFoundException("Tag with $tagId has no tasks")
+            throw TagHasNoTasksException("У тега c ID $tagId нет связанных задач")
         }
+
         val tasks = taskRepository.findAllByTagIdSortedByPriority(tagId)
         return TagWithTasksDTO(
             id = tagWithTasks.id,

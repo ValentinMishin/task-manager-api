@@ -23,29 +23,36 @@ repositories {
 }
 
 dependencies {
-    testImplementation(kotlin("test"))
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
+
     //validation
     implementation("org.springframework.boot:spring-boot-starter-validation")
-
     //cache
     implementation("org.springframework.boot:spring-boot-starter-cache")
     implementation("com.github.ben-manes.caffeine:caffeine")
 
+    runtimeOnly("org.postgresql:postgresql")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.testcontainers:junit-jupiter:1.19.8")
+    testImplementation("org.testcontainers:postgresql:1.19.8")
+
+    testImplementation("io.rest-assured:rest-assured:4.5.1")
+    testImplementation("io.rest-assured:kotlin-extensions:4.5.1")
+    testImplementation("io.rest-assured:json-path:4.5.1")
+    testImplementation("io.rest-assured:xml-path:4.5.1")
+
     testImplementation("org.junit.jupiter:junit-jupiter-api")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
-    testImplementation("org.testcontainers:junit-jupiter:1.19.8")
-    testImplementation("org.testcontainers:postgresql:1.19.3")
 //    testImplementation("org.assertj:assertj-core:3.24.2")
 //    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
 //    testImplementation("org.springframework.boot:spring-boot-testcontainers:3.4.5")
 //    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    runtimeOnly("org.postgresql:postgresql")
+
     providedRuntime("org.springframework.boot:spring-boot-starter-tomcat")
+    testImplementation(kotlin("test"))
 }
 
 tasks.test {
