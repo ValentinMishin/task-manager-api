@@ -4,9 +4,9 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
-import org.springframework.test.annotation.Commit
+import org.springframework.data.domain.PageRequest
 import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.context.TestExecutionListeners
+import ru.valentin.dto.ViewToDtoConverter
 import ru.valentin.model.Tag
 import ru.valentin.model.Task
 import ru.valentin.model.TaskType
@@ -150,14 +150,5 @@ class RepositoriesTest {
         taskRepository.deleteAllById(tasksIds)
 //         удаление тега
         tagRepository.deleteById(tagBugfix.id)
-    }
-
-    @Test
-    fun testSelect() {
-        val tagWithTasks = taskRepository.findByIdWithTasksSortedByPriority(1)
-        assertEquals(5, tagWithTasks.size)
-
-
-
     }
 }

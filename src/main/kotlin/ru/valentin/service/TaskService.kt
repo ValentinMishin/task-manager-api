@@ -4,12 +4,12 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import ru.valentin.dto.TaskNoTagsDTO
-import ru.valentin.dto.TaskWithTagsDTO
-import ru.valentin.dto.request.CreateTaskRequest
-import ru.valentin.dto.request.NewTagDto
-import ru.valentin.dto.response.DeleteTaskResponse
-import ru.valentin.dto.request.UpdateTaskRequest
+import ru.valentin.dto.select.task.TaskWithTagsDTO
+import ru.valentin.dto.ViewToDtoConverter
+import ru.valentin.dto.modifying.request.CreateTaskRequest
+import ru.valentin.dto.modifying.request.NewTagDto
+import ru.valentin.dto.modifying.response.DeleteTaskResponse
+import ru.valentin.dto.modifying.request.UpdateTaskRequest
 import ru.valentin.model.Tag
 import ru.valentin.model.Task
 import ru.valentin.model.TaskType
@@ -49,6 +49,7 @@ class TaskService(
         return task.toDto()
     }
 
+//    2 Изменение задачи
     @Transactional
     fun updateTask(taskId: Long, request: UpdateTaskRequest): TaskWithTagsDTO {
         val existingTask = taskRepository.findById(taskId)
@@ -85,6 +86,7 @@ class TaskService(
         return taskRepository.save(existingTask).toDto()
     }
 
+//    3. Удаление задачи
     fun deleteTask(taskId: Long): DeleteTaskResponse {
         val task = taskRepository.findById(taskId)
             .orElseThrow { EntityNotFoundException("Task not found with id: $taskId") }
@@ -98,6 +100,8 @@ class TaskService(
         return DeleteTaskResponse(taskId)
     }
 
+    //10. Получение списка задач за заданную дату с сортировкой по уровню приоритета
+    @Transactional
     fun getTasksByDateWithPrioritySort(
         date: LocalDate,
         page: Int,
@@ -105,8 +109,11 @@ class TaskService(
     ): Page<TaskWithTagsDTO> {
         val pageable = PageRequest.of(page, size)
 
-        return taskRepository.findAllByDateOrderByTypePriority(date, pageable)
-            .map { it.toDto() }
+        val taskViews = taskRepository
+            .findAllByDateOrderByTypePriority(date, pageable)
+        return taskViews.map { ViewToDtoConverter.toTaskWithTagsDTO(
+            it, tagRepository.findTagsByTask(it.getId())
+        ) }
     }
 
     private fun processTags(

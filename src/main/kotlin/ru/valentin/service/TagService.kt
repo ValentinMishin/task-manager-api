@@ -1,12 +1,13 @@
 package ru.valentin.service
 
 import org.springframework.transaction.annotation.Transactional
-import ru.valentin.dto.TagNoTasksDTO
-import ru.valentin.dto.TagWithTasksDTO
-import ru.valentin.dto.request.CreateTagDto
-import ru.valentin.dto.request.NewTaskDto
-import ru.valentin.dto.response.DeleteTagResponse
-import ru.valentin.dto.request.UpdateTagRequest
+import ru.valentin.dto.select.tag.TagNoTasksDTO
+import ru.valentin.dto.select.tag.TagWithTasksDTO
+import ru.valentin.dto.ViewToDtoConverter
+import ru.valentin.dto.modifying.request.CreateTagDto
+import ru.valentin.dto.modifying.request.NewTaskDto
+import ru.valentin.dto.modifying.response.DeleteTagResponse
+import ru.valentin.dto.modifying.request.UpdateTagRequest
 import ru.valentin.model.Tag
 import ru.valentin.model.Task
 import ru.valentin.repository.TagRepository
@@ -19,6 +20,7 @@ open class TagService (
     private val tagRepository: TagRepository,
     private val taskTypeRepository: TaskTypeRepository) {
 
+//    6. Создание нового тега
     @Transactional
     fun createTag(request: CreateTagDto): TagNoTasksDTO {
         // Создаем тег
@@ -31,6 +33,7 @@ open class TagService (
         return tag.toShortDto()
     }
 
+//    7. Изменение существующего тега
     @Transactional
     fun updateTag(tagId: Long, request: UpdateTagRequest): TagNoTasksDTO {
         val updatingTag = tagRepository.findById(tagId)
@@ -81,6 +84,7 @@ open class TagService (
         return tagRepository.save(updatingTag).toShortDto()
     }
 
+//    8. Удаление тега по айди вместе с задачами
     @Transactional
     fun deleteTagWithTasks(tagId: Long): DeleteTagResponse {
         val deletingTag = tagRepository.findById(tagId)
@@ -98,34 +102,30 @@ open class TagService (
         return DeleteTagResponse(tagId, tasksIds.toSet())
     }
 
+    // 4. Получение тега по идентификатору с задачами, сортированными по приоритету
     fun findTagWithTasksSortedByPriority(tagId: Long): TagWithTasksDTO {
         val tagWithTasks = tagRepository.findById(tagId)
             .orElseThrow{ EntityNotFoundException("Tag not found with id: $tagId") }
-
-        if (tagWithTasks.hasNoTasks()) {
+        if (!tagRepository.hasTask(tagWithTasks.id)) {
             throw EntityNotFoundException("Tag with $tagId has no tasks")
         }
-
-//        val tasks = tagRepository.findByIdWithTasksSortedByPriority(tagId)
-        val tasks = taskRepository.findByIdWithTasksSortedByPriority(tagId)
-
+        val tasks = taskRepository.findAllByTagIdSortedByPriority(tagId)
         return TagWithTasksDTO(
             id = tagWithTasks.id,
             title = tagWithTasks.title,
-            tasks.map { it.toShortDto() }
+            tasks = tasks.map {
+                ViewToDtoConverter.toTaskNoTagsDTO(it)
+            }
         )
     }
 
+    //5. Получение всех тегов, у которых есть задачи
     fun findTagsHavingTasks(): Set<TagNoTasksDTO> {
         val tags = tagRepository.findTagsWithTasks()
         if (tags.isEmpty())
             throw Exception("Tags with tasks not found")
         else {
-            val resTags = mutableSetOf<TagNoTasksDTO>()
-            tags.forEach {
-                resTags.add(it.toShortDto())
-            }
-            return resTags.toSet()
+            return tags.map { ViewToDtoConverter.toTagNoTasksDTO(it) }.toSet()
         }
     }
 

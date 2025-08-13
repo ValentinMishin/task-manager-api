@@ -1,6 +1,6 @@
 package ru.valentin.model
 
-import ru.valentin.dto.TaskTypeNoTasksDto
+import ru.valentin.dto.select.taskType.TaskTypeNoTasksDto
 import javax.persistence.*
 
 @Entity

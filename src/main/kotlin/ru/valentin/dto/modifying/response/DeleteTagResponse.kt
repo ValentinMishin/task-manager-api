@@ -1,4 +1,4 @@
-package ru.valentin.dto.response
+package ru.valentin.dto.modifying.response
 
 data class DeleteTagResponse(
     val tagId: Long,

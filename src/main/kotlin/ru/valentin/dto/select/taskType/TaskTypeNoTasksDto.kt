@@ -1,4 +1,4 @@
-package ru.valentin.dto
+package ru.valentin.dto.select.taskType
 
 data class TaskTypeNoTasksDto(
     val id: Long,

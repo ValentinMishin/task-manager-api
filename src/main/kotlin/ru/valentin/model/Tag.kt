@@ -1,8 +1,8 @@
 package ru.valentin.model
 
 import org.hibernate.annotations.CreationTimestamp
-import ru.valentin.dto.TagNoTasksDTO
-import ru.valentin.dto.TagWithTasksDTO
+import ru.valentin.dto.select.tag.TagNoTasksDTO
+import ru.valentin.dto.select.tag.TagWithTasksDTO
 import javax.persistence.*
 import java.time.LocalDateTime
 

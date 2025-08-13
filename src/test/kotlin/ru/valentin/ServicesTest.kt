@@ -1,17 +1,19 @@
 package ru.valentin
 
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.test.annotation.Commit
 import org.springframework.test.context.ActiveProfiles
-import ru.valentin.dto.request.CreateTaskRequest
-import ru.valentin.dto.request.NewTagDto
+import ru.valentin.dto.modifying.request.CreateTaskRequest
+import ru.valentin.dto.modifying.request.NewTagDto
 import ru.valentin.model.TaskType
 import ru.valentin.repository.TagRepository
 import ru.valentin.repository.TaskRepository
 import ru.valentin.repository.TaskTypeRepository
+import ru.valentin.service.TagService
 import ru.valentin.service.TaskService
 import java.time.LocalDate
 import javax.transaction.Transactional
@@ -19,13 +21,10 @@ import javax.transaction.Transactional
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("test")
-//@TestExecutionListeners(
-//    listeners = [DataInitializationTestExecutionListener::class],
-//    mergeMode = TestExecutionListeners.MergeMode.MERGE_WITH_DEFAULTS
-//)
 @Transactional
 class ServicesTest {
-    private lateinit var service: TaskService
+    private lateinit var taskService: TaskService
+    private lateinit var tagService: TagService
 
     private lateinit var regularTaskType: TaskType
     private lateinit var importantTaskType: TaskType
@@ -38,15 +37,18 @@ class ServicesTest {
     @Autowired
     private lateinit var tagRepository: TagRepository
 
-    @Test
-    @Commit
-    fun testCreation() {
+    @BeforeEach
+    fun init() {
         regularTaskType = taskTypeRepository.findByCode("regular") ?: throw NoSuchElementException()
         importantTaskType = taskTypeRepository.findByCode("important") ?: throw NoSuchElementException()
         urgentTaskType = taskTypeRepository.findByCode("urgent") ?: throw NoSuchElementException()
+        taskService = TaskService(taskRepository,tagRepository,taskTypeRepository)
+        tagService = TagService(taskRepository,tagRepository,taskTypeRepository)
+    }
 
-        service = TaskService(taskRepository,tagRepository,taskTypeRepository)
-
+    @Test
+    @Commit
+    fun testCreation() {
         val request2 = CreateTaskRequest(
             title = "Подготовить презентацию",
             typeId = 2, // Тип с ID=2 (например, "PRESENTATION")
@@ -59,8 +61,23 @@ class ServicesTest {
             )
         )
 
-        service.createTask(request2)
+        val createResp = taskService.createTask(request2)
 
+        val delete = taskService.deleteTask(7)
+    }
 
+    @Test
+    fun testSelect() {
+        val test = taskService.getTasksByDateWithPrioritySort(
+            LocalDate.of(2025,8,18),
+            0,
+            5
+        )
+
+        val test1 = tagService.findTagsHavingTasks()
+
+        val test2 = tagService.findTagWithTasksSortedByPriority(1)
+
+        val test4 = taskTypeRepository.findAllByOrderByPriorityDesc()
     }
 }

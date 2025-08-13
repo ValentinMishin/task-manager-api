@@ -1,7 +1,8 @@
-package ru.valentin.dto
+package ru.valentin.dto.select.task
 
+import ru.valentin.dto.select.tag.TagNoTasksDTO
+import ru.valentin.dto.select.taskType.TaskTypeNoTasksDto
 import java.time.LocalDate
-import java.time.LocalDateTime
 
 data class TaskWithTagsDTO(
     val id: Long,
@@ -9,7 +10,5 @@ data class TaskWithTagsDTO(
     val type: TaskTypeNoTasksDto,
     val description: String?,
     val dueDate: LocalDate,
-    val tags: Set<TagNoTasksDTO>,
-    val createdAt: LocalDateTime?,
-    val updatedAt: LocalDateTime?
+    val tags: Set<TagNoTasksDTO>
 )

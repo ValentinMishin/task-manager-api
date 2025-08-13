@@ -1,4 +1,4 @@
-package ru.valentin.dto.request
+package ru.valentin.dto.modifying.request
 
 import javax.validation.Valid
 
