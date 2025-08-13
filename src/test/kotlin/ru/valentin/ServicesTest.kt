@@ -6,9 +6,8 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.test.annotation.Commit
 import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.context.TestExecutionListeners
-import ru.valentin.dto.create.CreateTaskRequest
-import ru.valentin.dto.create.NewTagDto
+import ru.valentin.dto.request.CreateTaskRequest
+import ru.valentin.dto.request.NewTagDto
 import ru.valentin.model.TaskType
 import ru.valentin.repository.TagRepository
 import ru.valentin.repository.TaskRepository
@@ -61,5 +60,7 @@ class ServicesTest {
         )
 
         service.createTask(request2)
+
+
     }
 }

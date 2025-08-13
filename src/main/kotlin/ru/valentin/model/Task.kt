@@ -2,6 +2,8 @@ package ru.valentin.model
 
 import org.hibernate.annotations.CreationTimestamp
 import org.hibernate.annotations.UpdateTimestamp
+import ru.valentin.dto.TaskNoTagsDTO
+import ru.valentin.dto.TaskWithTagsDTO
 import javax.persistence.*
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -44,6 +46,28 @@ data class Task(
     )
     var tags: MutableSet<Tag> = mutableSetOf()
 ) {
+    //DTO utils
+    fun toShortDto(): TaskNoTagsDTO {
+        return TaskNoTagsDTO(
+            id = this.id,
+            title = this.title,
+            type = this.type.toShortDto(),
+            dueDate = this.dueDate
+        )
+    }
+
+    fun toDto(): TaskWithTagsDTO {
+        return TaskWithTagsDTO(
+            id = id,
+            title = title,
+            type = type.toShortDto(),
+            description = description,
+            dueDate = dueDate,
+            tags = tags.map { it.toShortDto() }.toSet(),
+            createdAt = createdAt,
+            updatedAt = updatedAt
+        )
+    }
 
     fun addTagWithUpdateTasks(tag: Tag) {
         tags.add(tag)

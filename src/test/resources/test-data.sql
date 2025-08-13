@@ -13,7 +13,8 @@ INSERT INTO tag (title, created_at, updated_at) VALUES
 ('ui/ux', CURRENT_TIMESTAMP, NULL),
 ('critical', CURRENT_TIMESTAMP, NULL),
 ('refactoring', CURRENT_TIMESTAMP, NULL),
-('testing', CURRENT_TIMESTAMP, NULL);
+('testing', CURRENT_TIMESTAMP, NULL),
+('tag-with-no tasks', CURRENT_TIMESTAMP, NULL);
 
 INSERT INTO task (title, type_id, description, due_date, created_at, updated_at) VALUES
 ('Исправить ошибку авторизации', 3, 'Пользователи не могут войти после обновления', CURRENT_DATE + INTERVAL '5 days', CURRENT_TIMESTAMP, NULL),

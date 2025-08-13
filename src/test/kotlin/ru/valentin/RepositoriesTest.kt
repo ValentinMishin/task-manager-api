@@ -151,4 +151,13 @@ class RepositoriesTest {
 //         удаление тега
         tagRepository.deleteById(tagBugfix.id)
     }
+
+    @Test
+    fun testSelect() {
+        val tagWithTasks = taskRepository.findByIdWithTasksSortedByPriority(1)
+        assertEquals(5, tagWithTasks.size)
+
+
+
+    }
 }

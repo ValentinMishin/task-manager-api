@@ -1,9 +1,9 @@
 package ru.valentin.model
 
 import org.hibernate.annotations.CreationTimestamp
-import org.hibernate.annotations.DynamicUpdate
+import ru.valentin.dto.TagNoTasksDTO
+import ru.valentin.dto.TagWithTasksDTO
 import javax.persistence.*
-import java.sql.Timestamp
 import java.time.LocalDateTime
 
 @Entity
@@ -27,12 +27,29 @@ data class Tag(
     @OrderBy("type.priority DESC, dueDate Asc")
     var tasks: MutableSet<Task> = mutableSetOf()
 ) {
+    //utils TO DTO
+    fun toShortDto(): TagNoTasksDTO {
+        return TagNoTasksDTO(
+            id = id,
+            title = title
+        )
+    }
+
+    fun toDto(): TagWithTasksDTO {
+        return TagWithTasksDTO(
+            id = id,
+            title = title,
+            tasks = tasks.map { it.toShortDto() }
+        )
+    }
+
     @PreUpdate
     fun onUpdate() {
         updatedAt = LocalDateTime.now()
     }
 
     fun hasTasks(): Boolean = tasks.isNotEmpty()
+    fun hasNoTasks(): Boolean = tasks.isEmpty()
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

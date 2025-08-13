@@ -1,5 +1,6 @@
 package ru.valentin.model
 
+import ru.valentin.dto.TaskTypeNoTasksDto
 import javax.persistence.*
 
 @Entity
@@ -18,6 +19,16 @@ data class TaskType(
     @Column(nullable = true, columnDefinition = "TEXT")
     val description: String? = null
 ) {
+    //UTILS dto
+    fun toShortDto(): TaskTypeNoTasksDto {
+        return TaskTypeNoTasksDto(
+            id = id,
+            code = code,
+            priority = priority,
+            description = description
+        )
+    }
+
     companion object {
         fun createDefaultTypes(): MutableSet<TaskType> {
             return mutableSetOf(

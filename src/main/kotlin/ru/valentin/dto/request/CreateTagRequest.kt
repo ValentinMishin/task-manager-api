@@ -1,4 +1,4 @@
-package ru.valentin.dto.create
+package ru.valentin.dto.request
 
 import java.time.LocalDate
 import javax.validation.Valid

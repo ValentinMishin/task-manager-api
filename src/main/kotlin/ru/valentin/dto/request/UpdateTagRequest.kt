@@ -1,8 +1,6 @@
-package ru.valentin.dto.update
+package ru.valentin.dto.request
 
-import ru.valentin.dto.create.NewTaskDto
 import javax.validation.Valid
-import javax.validation.constraints.NotBlank
 
 //хотя бы одно поле не должно быть нул
 data class UpdateTagRequest (
@@ -17,4 +15,3 @@ data class UpdateTagRequest (
     // ID задач для отвязки
     val tasksToRemoveIds: Set<Long>?
 )
-

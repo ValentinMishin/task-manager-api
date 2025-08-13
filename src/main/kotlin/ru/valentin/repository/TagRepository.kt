@@ -6,10 +6,10 @@ import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import ru.valentin.model.Tag
+import ru.valentin.model.Task
 import java.util.Optional
 
 interface TagRepository : JpaRepository<Tag, Long> {
-
     // Получаем ID задач по ID тега
     @Query(
         value = "SELECT task_id FROM task_tag WHERE tag_id = :tagId",
@@ -26,4 +26,14 @@ interface TagRepository : JpaRepository<Tag, Long> {
     fun deleteTagRelationships(@Param("tagId") tagId: Long)
 
     fun findByTitle(title: String): Tag?
+
+    @Query(
+        value = """
+            select distinct tg.id , tg.title, tg.created_at , tg.updated_at  from tag tg
+            join task_tag tt on tt.tag_id = tg.id
+            order by tg.id asc
+        """,
+        nativeQuery = true
+    )
+    fun findTagsWithTasks(): List<Tag>
 }

@@ -1,4 +1,4 @@
-package ru.valentin.dto.create
+package ru.valentin.dto.request
 
 import java.time.LocalDate
 import javax.validation.constraints.FutureOrPresent
@@ -19,10 +19,10 @@ data class CreateTaskRequest(
     val dueDate: LocalDate,
 
     // Прикрепление тегов по ID (опционально)
-    val existingTagIds: Set<Long> = emptySet(),
+    val existingTagIds: Set<Long>?,
 
     // Создание новых тегов по названиям (опционально)
-    val newTags: Set<@NotBlank NewTagDto> = emptySet()
+    val newTags: Set<@NotBlank NewTagDto>?
 )
 
 data class NewTagDto(
