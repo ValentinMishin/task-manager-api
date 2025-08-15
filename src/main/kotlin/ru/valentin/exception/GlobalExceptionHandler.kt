@@ -1,10 +1,12 @@
 package ru.valentin.exception
 
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
+import org.springframework.web.context.request.WebRequest
 import ru.valentin.dto.error.ErrorResponse
 import ru.valentin.exception.attachment.AttachmentAlreadyAppliedToTaskException
 import ru.valentin.exception.attachment.AttachmentIOException
@@ -17,6 +19,20 @@ import javax.validation.ConstraintViolationException
 
 @ControllerAdvice
 class GlobalExceptionHandler {
+
+    private val log = LoggerFactory.getLogger(javaClass)
+
+    @ExceptionHandler(Exception::class)
+    fun handleAllExceptions(ex: Exception, request: WebRequest): ResponseEntity<ErrorResponse> {
+        log.error("Error processing request ${request.parameterMap}", ex)
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body(ErrorResponse(
+                status = HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                message = "Внутренняя ошибка на сервере.," +
+                        "${request.parameterMap}"
+                        +"${request.headerNames}"
+            ))
+    }
 
     @ExceptionHandler(ConstraintViolationException::class)
     fun handleValidationExceptions(ex: ConstraintViolationException): ResponseEntity<ErrorResponse> {

@@ -61,7 +61,8 @@ class TagController(
     }
 
     //4 /api/tags/{id}/tasks
-    @GetMapping("/{id}/tasks")
+    @GetMapping("/{id}/tasks",
+        produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getTagWithSortedTasks(
         @PathVariable id: Long
     ): ResponseEntity<TagWithTasksDTO> {
@@ -69,7 +70,8 @@ class TagController(
             return ResponseEntity.ok(result)
     }
 
-    @GetMapping("/with-tasks")
+    @GetMapping("/with-tasks",
+        produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getTagsWithTasks(
     ): ResponseEntity<Set<TagNoTasksDTO>> {
 
