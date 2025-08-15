@@ -2,12 +2,22 @@ DROP TABLE IF EXISTS task_type CASCADE;
 DROP TABLE IF EXISTS tag CASCADE;
 DROP TABLE IF EXISTS task CASCADE;
 DROP TABLE IF EXISTS task_tag CASCADE;
+DROP TABLE IF EXISTS attachment CASCADE;
 
 CREATE TABLE task_type (
     id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     code VARCHAR(50) NOT NULL UNIQUE,
     priority INT NOT NULL,
     description TEXT
+);
+
+CREATE TABLE attachment (
+    id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+    file_name VARCHAR(255) NOT NULL,
+    file_path VARCHAR(255) NOT NULL,
+    mime_type VARCHAR(255) NOT NULL,
+    file_size BIGINT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE tag (
@@ -25,7 +35,9 @@ CREATE TABLE task (
     due_date DATE NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NULL,
-    FOREIGN KEY (type_id) REFERENCES task_type(id)
+    attachment_id BIGINT UNIQUE,
+    FOREIGN KEY (type_id) REFERENCES task_type(id),
+    FOREIGN KEY (attachment_id) REFERENCES attachment(id) ON DELETE SET NULL
 );
 
 CREATE TABLE task_tag (

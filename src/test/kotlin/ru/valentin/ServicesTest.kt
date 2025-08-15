@@ -7,8 +7,8 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.test.annotation.Commit
 import org.springframework.test.context.ActiveProfiles
-import ru.valentin.dto.modifying.request.CreateTaskRequest
-import ru.valentin.dto.modifying.request.NewTagDto
+import ru.valentin.dto.request.CreateTaskDto
+import ru.valentin.dto.request.NewTagDto
 import ru.valentin.model.TaskType
 import ru.valentin.repository.TagRepository
 import ru.valentin.repository.TaskRepository
@@ -49,7 +49,7 @@ class ServicesTest {
     @Test
     @Commit
     fun testCreation() {
-        val request2 = CreateTaskRequest(
+        val request2 = CreateTaskDto(
             title = "Подготовить презентацию",
             typeId = 2, // Тип с ID=2 (например, "PRESENTATION")
             description = "Слайды для руководства",

@@ -1,6 +1,6 @@
-package ru.valentin.dto.select.tag
+package ru.valentin.dto.response.tag
 
-import ru.valentin.dto.select.task.TaskNoTagsDTO
+import ru.valentin.dto.response.task.TaskNoTagsDTO
 
 data class TagWithTasksDTO (
     val id: Long,

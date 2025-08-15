@@ -2,14 +2,15 @@ package ru.valentin.service
 
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import ru.valentin.dto.select.task.TaskWithTagsDTO
+import ru.valentin.dto.response.task.TaskWithTagsDTO
 import ru.valentin.dto.ViewToDtoConverter
-import ru.valentin.dto.modifying.request.CreateTaskRequest
-import ru.valentin.dto.modifying.request.NewTagDto
-import ru.valentin.dto.modifying.response.DeleteTaskResponse
-import ru.valentin.dto.modifying.request.UpdateTaskRequest
+import ru.valentin.dto.request.CreateTaskDto
+import ru.valentin.dto.request.NewTagDto
+import ru.valentin.dto.request.UpdateTaskDto
 import ru.valentin.model.Tag
 import ru.valentin.model.Task
 import ru.valentin.model.TaskType
@@ -28,10 +29,10 @@ class TaskService(
     // 1. Создание новой задачи
     // в рамках одной транзакции
     @Transactional
-    fun createTask(request: CreateTaskRequest): TaskWithTagsDTO {
+    fun createTask(request: CreateTaskDto): TaskWithTagsDTO {
         // Валидация типа задачи
         val taskType = taskTypeRepository.findById(request.typeId)
-            .orElseThrow { EntityNotFoundException("TaskType not found with id: ${request.typeId}") }
+            .orElseThrow { EntityNotFoundException("Тип задачи с ID: ${request.typeId}") }
 
         // Обработка тегов
         var tags = processTags(request.existingTagIds, request.newTags)
@@ -51,14 +52,14 @@ class TaskService(
 
 //    2 Изменение задачи
     @Transactional
-    fun updateTask(taskId: Long, request: UpdateTaskRequest): TaskWithTagsDTO {
+    fun updateTask(taskId: Long, request: UpdateTaskDto): TaskWithTagsDTO {
         val existingTask = taskRepository.findById(taskId)
-            .orElseThrow { EntityNotFoundException("Task not found with id: $taskId") }
+            .orElseThrow { EntityNotFoundException("Задача с ID $taskId не найдена") }
 
         var taskType: TaskType? = null
         request.typeId?.let {
             taskType = taskTypeRepository.findById(request.typeId)
-                .orElseThrow { EntityNotFoundException("TaskType not found with id: ${request.typeId}") }
+                .orElseThrow { EntityNotFoundException("Тип задачи с ID: ${request.typeId}") }
         }
 
         // Обрабатываем теги для добавления
@@ -87,7 +88,8 @@ class TaskService(
     }
 
 //    3. Удаление задачи
-    fun deleteTask(taskId: Long): DeleteTaskResponse {
+    @Transactional
+    fun deleteTask(taskId: Long) {
         val task = taskRepository.findById(taskId)
             .orElseThrow { EntityNotFoundException("Task not found with id: $taskId") }
 
@@ -96,8 +98,6 @@ class TaskService(
 
         // Удаляем саму задачу
         taskRepository.delete(task)
-
-        return DeleteTaskResponse(taskId)
     }
 
     //10. Получение списка задач за заданную дату с сортировкой по уровню приоритета
@@ -107,7 +107,11 @@ class TaskService(
         page: Int,
         size: Int
     ): Page<TaskWithTagsDTO> {
-        val pageable = PageRequest.of(page, size)
+        val pageable: Pageable = PageRequest.of(
+            page,
+            size,
+            Sort.by(Sort.Direction.DESC, "priority")
+        )
 
         val taskViews = taskRepository
             .findAllByDateOrderByTypePriority(date, pageable)

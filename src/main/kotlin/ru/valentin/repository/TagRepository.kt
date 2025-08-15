@@ -1,15 +1,11 @@
 package ru.valentin.repository
 
-import org.springframework.data.jpa.repository.EntityGraph
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
-import ru.valentin.dto.select.tag.TagNoTasksDTO
-import ru.valentin.dto.select.tag.TagNoTasksView
+import ru.valentin.dto.response.tag.TagNoTasksView
 import ru.valentin.model.Tag
-import ru.valentin.model.Task
-import java.util.Optional
 
 interface TagRepository : JpaRepository<Tag, Long> {
     // Получаем ID задач по ID тега

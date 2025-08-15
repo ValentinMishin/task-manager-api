@@ -2,14 +2,12 @@ package ru.valentin.service
 
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import ru.valentin.dto.select.tag.TagNoTasksDTO
-import ru.valentin.dto.select.tag.TagWithTasksDTO
+import ru.valentin.dto.response.tag.TagNoTasksDTO
+import ru.valentin.dto.response.tag.TagWithTasksDTO
 import ru.valentin.dto.ViewToDtoConverter
-import ru.valentin.dto.modifying.request.CreateTagDto
-import ru.valentin.dto.modifying.request.NewTaskDto
-import ru.valentin.dto.modifying.response.DeleteTagResponse
-import ru.valentin.dto.modifying.request.UpdateTagRequest
-import ru.valentin.exception.TagHasNoTasksException
+import ru.valentin.dto.request.CreateTagDto
+import ru.valentin.dto.request.NewTaskDto
+import ru.valentin.dto.request.UpdateTagDto
 import ru.valentin.model.Tag
 import ru.valentin.model.Task
 import ru.valentin.repository.TagRepository
@@ -38,7 +36,7 @@ open class TagService (
 
 //    7. Изменение существующего тега
     @Transactional
-    fun updateTag(tagId: Long, request: UpdateTagRequest): TagNoTasksDTO {
+    fun updateTag(tagId: Long, request: UpdateTagDto): TagNoTasksDTO {
         val updatingTag = tagRepository.findById(tagId)
             .orElseThrow { EntityNotFoundException("Tag not found with id: $tagId") }
 
@@ -89,7 +87,7 @@ open class TagService (
 
 //    8. Удаление тега по айди вместе с задачами
     @Transactional
-    fun deleteTagWithTasks(tagId: Long): DeleteTagResponse {
+    fun deleteTagWithTasks(tagId: Long) {
         val deletingTag = tagRepository.findById(tagId)
             .orElseThrow { EntityNotFoundException("Tag not found with id: $tagId") }
 
@@ -101,8 +99,6 @@ open class TagService (
         taskRepository.deleteAllById(tasksIds)
 //         удаление тега
         tagRepository.deleteById(tagId)
-
-        return DeleteTagResponse(tagId, tasksIds.toSet())
     }
 
     // 4. Получение тега по идентификатору с задачами, сортированными по приоритету
@@ -112,7 +108,7 @@ open class TagService (
             .orElseThrow{ EntityNotFoundException("Тег с ID $tagId не найден в базе данных") }
 
         if (!tagRepository.hasTask(tagWithTasks.id)) {
-            throw TagHasNoTasksException("У тега c ID $tagId нет связанных задач")
+            throw EntityNotFoundException("У тега c ID $tagId нет связанных задач")
         }
 
         val tasks = taskRepository.findAllByTagIdSortedByPriority(tagId)

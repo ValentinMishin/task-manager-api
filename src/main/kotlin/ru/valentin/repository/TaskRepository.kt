@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
-import ru.valentin.dto.select.task.TaskNoTagsView
+import ru.valentin.dto.response.task.TaskNoTagsView
 import ru.valentin.model.Task
 import java.time.LocalDate
 

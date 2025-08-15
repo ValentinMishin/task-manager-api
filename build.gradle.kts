@@ -35,10 +35,12 @@ dependencies {
     implementation("com.github.ben-manes.caffeine:caffeine")
 
     runtimeOnly("org.postgresql:postgresql")
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.testcontainers:junit-jupiter:1.19.8")
-    testImplementation("org.testcontainers:postgresql:1.19.8")
-
+    //тест контэйнер
+    testImplementation("org.springframework.boot:spring-boot-starter-test:2.7.18")
+    testImplementation("org.testcontainers:testcontainers:1.17.6")
+    testImplementation("org.testcontainers:junit-jupiter:1.17.6")
+    testImplementation("org.testcontainers:postgresql:1.17.6")
+    //ендпоинты тест
     testImplementation("io.rest-assured:rest-assured:4.5.1")
     testImplementation("io.rest-assured:kotlin-extensions:4.5.1")
     testImplementation("io.rest-assured:json-path:4.5.1")
@@ -46,13 +48,15 @@ dependencies {
 
     testImplementation("org.junit.jupiter:junit-jupiter-api")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
-//    testImplementation("org.assertj:assertj-core:3.24.2")
-//    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
-//    testImplementation("org.springframework.boot:spring-boot-testcontainers:3.4.5")
-//    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
     providedRuntime("org.springframework.boot:spring-boot-starter-tomcat")
     testImplementation(kotlin("test"))
+}
+
+//для запуска в тестовом окружении
+tasks.register<JavaExec>("runWithTestcontainers") {
+    classpath = sourceSets.test.get().runtimeClasspath
+    mainClass.set("ru.valentin.TestApplication.kt")
 }
 
 tasks.test {

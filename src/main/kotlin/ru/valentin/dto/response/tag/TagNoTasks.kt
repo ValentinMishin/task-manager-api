@@ -1,4 +1,4 @@
-package ru.valentin.dto.select.tag
+package ru.valentin.dto.response.tag
 
 interface TagNoTasksView {
     fun getId(): Long

@@ -1,11 +1,11 @@
 package ru.valentin.dto
 
-import ru.valentin.dto.select.tag.TagNoTasksDTO
-import ru.valentin.dto.select.tag.TagNoTasksView
-import ru.valentin.dto.select.taskType.TaskTypeNoTasksDto
-import ru.valentin.dto.select.task.TaskWithTagsDTO
-import ru.valentin.dto.select.task.TaskNoTagsDTO
-import ru.valentin.dto.select.task.TaskNoTagsView
+import ru.valentin.dto.response.tag.TagNoTasksDTO
+import ru.valentin.dto.response.tag.TagNoTasksView
+import ru.valentin.dto.response.taskType.TaskTypeNoTasksDto
+import ru.valentin.dto.response.task.TaskWithTagsDTO
+import ru.valentin.dto.response.task.TaskNoTagsDTO
+import ru.valentin.dto.response.task.TaskNoTagsView
 
 object ViewToDtoConverter {
 
