@@ -2,6 +2,7 @@ package ru.valentin.repository
 
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import org.springframework.data.jpa.repository.EntityGraph
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
@@ -9,6 +10,7 @@ import org.springframework.data.repository.query.Param
 import ru.valentin.dto.response.task.TaskNoTagsView
 import ru.valentin.model.Task
 import java.time.LocalDate
+import javax.validation.constraints.Pattern
 
 interface TaskRepository : JpaRepository<Task, Long> {
 
@@ -52,9 +54,17 @@ interface TaskRepository : JpaRepository<Task, Long> {
         """,
         nativeQuery = true
     )
-    fun findAllByDateOrderByTypePriority(@Param("dueDate") dueDate: LocalDate,
-                                         pageable: Pageable
+    fun findAllByDateOrderByTypePriority
+                (@Param("dueDate") dueDate: LocalDate,
+                 pageable: Pageable
     ): Page<TaskNoTagsView>
+
+    @EntityGraph(attributePaths = ["type", "tags"])
+    @Query("SELECT t FROM Task t WHERE t.dueDate = :dueDate")
+    fun findAllByDueDateWithTasks(
+        @Param("dueDate") dueDate: LocalDate,
+        pageable: Pageable
+    ): Page<Task>
 
     @Modifying
     @Query(

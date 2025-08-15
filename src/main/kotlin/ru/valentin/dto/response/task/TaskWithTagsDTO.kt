@@ -10,5 +10,5 @@ data class TaskWithTagsDTO(
     val type: TaskTypeNoTasksDto,
     val description: String,
     val dueDate: LocalDate,
-    val tags: Set<TagNoTasksDTO>
+    val tags: MutableSet<TagNoTasksDTO>
 )

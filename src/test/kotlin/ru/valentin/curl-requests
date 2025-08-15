@@ -16,3 +16,7 @@ curl -s -v -X DELETE \
   -w "\nHTTP Status: %{http_code}\nContent-Type: %{content_type}\n"
 
 Создание задачи
+
+curl -s -v -X GET \
+  "http://localhost:8080/api/tasks/by-date?date=2025-08-20&pag%D0%B9%D1%86%D1%83e=0&siqqze=1&soqqrt=desc" \
+  -w "\nHTTP Status: %{http_code}\nContent-Type: %{content_type}\n"

@@ -1,9 +1,7 @@
 package ru.valentin.controller
 
 import org.springframework.data.domain.Page
-import org.springframework.data.domain.PageRequest
-import org.springframework.data.domain.Pageable
-import org.springframework.data.domain.Sort
+import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -20,6 +18,9 @@ import ru.valentin.dto.request.UpdateTaskDto
 import ru.valentin.dto.response.task.TaskWithTagsDTO
 import ru.valentin.service.TaskService
 import java.time.LocalDate
+import javax.validation.constraints.Max
+import javax.validation.constraints.Min
+import javax.validation.constraints.Pattern
 
 @RestController
 @RequestMapping("/api/tasks")
@@ -62,15 +63,22 @@ class TaskController(
         return ResponseEntity.noContent().build()
     }
 
-    @GetMapping("/by-date")
+    @GetMapping("/by-date",
+        produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getTasksByDateWithPrioritySort(
-        @RequestParam date: LocalDate,
-        @RequestParam(defaultValue = "0") page: Int,
-        @RequestParam(defaultValue = "10") size: Int
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)date: LocalDate,
+        page: Int,
+        size: Int,
+        @Pattern(regexp = "asc|desc",
+            message = "asc или desc") sort: String
     ): ResponseEntity<Page<TaskWithTagsDTO>> {
 
-        val result = taskService.getTasksByDateWithPrioritySort(date, page, size)
+        val result = taskService
+            .getTasksByDateWithPrioritySort(date, page, size, sort)
 
-        return ResponseEntity.ok(result)
+        return ResponseEntity.ok()
+            .header("X-Total-Elements", result.totalElements.toString())
+            .header("X-Total-Pages", result.totalPages.toString())
+            .body(result)
     }
 }

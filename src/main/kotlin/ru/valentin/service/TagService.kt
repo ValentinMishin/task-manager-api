@@ -4,7 +4,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import ru.valentin.dto.response.tag.TagNoTasksDTO
 import ru.valentin.dto.response.tag.TagWithTasksDTO
-import ru.valentin.dto.ViewToDtoConverter
+import ru.valentin.dto.Converter
 import ru.valentin.dto.request.CreateTagDto
 import ru.valentin.dto.request.NewTaskDto
 import ru.valentin.dto.request.UpdateTagDto
@@ -23,22 +23,25 @@ open class TagService (
 
 //    6. Создание нового тега
     @Transactional
-    fun createTag(request: CreateTagDto): TagNoTasksDTO {
-        // Создаем тег
+    fun createTag(request: CreateTagDto): TagWithTasksDTO {
+        // Сохраняем тег и получаем его из БД с айди
         val tag = Tag(title = request.title)
             .let(tagRepository::save)
 
-        // Обрабатываем задачи
-        processTasks(tag, request.existingTaskIds, request.newTasks)
+        // Обрабатываем задачи и добавляем к тегу сохраняем в бд, синхронизируем
+        // тег из БД с сущностью для дто
+        processTasksAndAddToTag(tag,
+            request.existingTaskIds,
+            request.newTasks)
 
-        return tag.toShortDto()
+        return tag.toDto()
     }
 
 //    7. Изменение существующего тега
     @Transactional
-    fun updateTag(tagId: Long, request: UpdateTagDto): TagNoTasksDTO {
+    fun updateTag(tagId: Long, request: UpdateTagDto): TagWithTasksDTO {
         val updatingTag = tagRepository.findById(tagId)
-            .orElseThrow { EntityNotFoundException("Tag not found with id: $tagId") }
+            .orElseThrow { EntityNotFoundException("Тег с ID $tagId не найден") }
 
         // Обновляем основную информацию
         request.title?.let { updatingTag.title = it }
@@ -48,48 +51,22 @@ open class TagService (
             val tasksToRemove = taskRepository.findAllById(request.tasksToRemoveIds)
             tasksToRemove.forEach { task ->
                 task.tags.remove(updatingTag)
+                taskRepository.save(task)
                 updatingTag.tasks.remove(task)
             }
-            taskRepository.saveAll(tasksToRemove)
         }
 
-        // Обрабатываем новые задачи
-        request.newTasksToAdd?.let {
-            val newTasks = request.newTasksToAdd.map { taskDto ->
-                val taskType = taskTypeRepository.findById(taskDto.typeId)
-                    .orElseThrow { EntityNotFoundException("TaskType not found with id: ${taskDto.typeId}") }
+        processTasksAndAddToTag(updatingTag,
+            request.tasksToAddIds, request.newTasksToAdd)
 
-                Task(
-                    title = taskDto.title,
-                    type = taskType,
-                    description = taskDto.description,
-                    dueDate = taskDto.dueDate
-                ).apply {
-                    tags.add(updatingTag)
-                }
-            }.let(taskRepository::saveAll)
-        }
-
-        // Обрабатываем существующие задачи для добавления
-        request.tasksToAddIds?.let {
-            val tasksToAdd = taskRepository.findAllById(request.tasksToAddIds)
-            tasksToAdd.forEach { task ->
-                if (!updatingTag.tasks.contains(task)) {
-                    task.tags.add(updatingTag)
-                    updatingTag.tasks.add(task)
-                }
-            }
-            taskRepository.saveAll(tasksToAdd)
-        }
-
-        return tagRepository.save(updatingTag).toShortDto()
+        return updatingTag.toDto()
     }
 
 //    8. Удаление тега по айди вместе с задачами
     @Transactional
     fun deleteTagWithTasks(tagId: Long) {
         val deletingTag = tagRepository.findById(tagId)
-            .orElseThrow { EntityNotFoundException("Tag not found with id: $tagId") }
+            .orElseThrow { EntityNotFoundException("Тег с ID $tagId не найден") }
 
         //связанные задачи
         val tasksIds = tagRepository.findTaskIdsByTagId(tagId)
@@ -105,7 +82,7 @@ open class TagService (
     @Transactional(readOnly = true)
     fun findTagWithTasksSortedByPriority(tagId: Long): TagWithTasksDTO {
         val tagWithTasks = tagRepository.findById(tagId)
-            .orElseThrow{ EntityNotFoundException("Тег с ID $tagId не найден в базе данных") }
+            .orElseThrow{ EntityNotFoundException("Тег с ID $tagId не найден") }
 
         if (!tagRepository.hasTask(tagWithTasks.id)) {
             throw EntityNotFoundException("У тега c ID $tagId нет связанных задач")
@@ -116,8 +93,8 @@ open class TagService (
             id = tagWithTasks.id,
             title = tagWithTasks.title,
             tasks = tasks.map {
-                ViewToDtoConverter.toTaskNoTagsDTO(it)
-            }
+                Converter.toTaskNoTagsDTO(it)
+            }.toMutableSet()
         )
     }
 
@@ -125,27 +102,31 @@ open class TagService (
     fun findTagsHavingTasks(): Set<TagNoTasksDTO> {
         val tags = tagRepository.findTagsWithTasks()
         if (tags.isEmpty())
-            throw Exception("Tags with tasks not found")
+            throw EntityNotFoundException("Теги с задачами не найдены")
         else {
-            return tags.map { ViewToDtoConverter.toTagNoTasksDTO(it) }.toSet()
+            return tags.map { Converter.toTagNoTasksDTO(it) }.toSet()
         }
     }
 
-    private fun processTasks(
+    private fun processTasksAndAddToTag(
         tag: Tag,
         existingTaskIds: Set<Long>?,
         newTasks: Set<NewTaskDto>?
     ) {
-        // Обрабатываем существующие задачи
-        //присоединение связей с тегом
+        //оба пустые или нул?
+        if ( !(existingTaskIds != null && existingTaskIds.isNotEmpty())
+            && !(newTasks != null && newTasks.isNotEmpty())) {
+            return
+        }
+
         existingTaskIds?.let {
             if (existingTaskIds.isNotEmpty()) {
                 val tasks = taskRepository.findAllById(existingTaskIds)
                 tasks.forEach { task ->
-                    task.tags.add(tag)
-                    tag.tasks.add(task)
+                    task.tags.add(tag) // добавил тег
+                    taskRepository.save(task) // обновил таблицу связку
+                    tag.tasks.add(task) //для дто
                 }
-                taskRepository.saveAll(tasks)
             }
         }
 
@@ -153,7 +134,7 @@ open class TagService (
         newTasks?.let {
             newTasks.forEach { newTask ->
                 val taskType = taskTypeRepository.findById(newTask.typeId)
-                    .orElseThrow { EntityNotFoundException("TaskType not found with id: ${newTask.typeId}") }
+                    .orElseThrow { EntityNotFoundException("Тип задачи с ID: ${newTask.typeId}") }
 
                 val task = Task(
                     title = newTask.title,
@@ -164,8 +145,7 @@ open class TagService (
                     tags.add(tag)
                 }
 
-                taskRepository.save(task)
-                tag.tasks.add(task)
+                tag.tasks.add(taskRepository.save(task)) //для дто
             }
         }
     }

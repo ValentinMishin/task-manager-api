@@ -16,13 +16,6 @@ data class Tag(
     @Column(nullable = false, unique = true, length = 255)
     var title: String,
 
-    @Column(nullable = false, updatable = false)
-    @CreationTimestamp
-    var createdAt: LocalDateTime? = null,
-
-    @Column(nullable = true)
-    var updatedAt: LocalDateTime? = null,
-
     @ManyToMany(mappedBy = "tags")
     @OrderBy("type.priority DESC, dueDate Asc")
     var tasks: MutableSet<Task> = mutableSetOf()
@@ -39,13 +32,8 @@ data class Tag(
         return TagWithTasksDTO(
             id = id,
             title = title,
-            tasks = tasks.map { it.toShortDto() }
+            tasks = tasks.map { it.toShortDto() }.toMutableSet()
         )
-    }
-
-    @PreUpdate
-    fun onUpdate() {
-        updatedAt = LocalDateTime.now()
     }
 
     fun hasTasks(): Boolean = tasks.isNotEmpty()
@@ -59,7 +47,6 @@ data class Tag(
 
         if (id != other.id) return false
         if (title != other.title) return false
-        if (createdAt != other.createdAt) return false
 
         return true
     }
@@ -67,7 +54,6 @@ data class Tag(
     override fun hashCode(): Int {
         var result = id.hashCode()
         result = 31 * result + title.hashCode()
-        result = 31 * result + createdAt.hashCode()
         return result
     }
 }

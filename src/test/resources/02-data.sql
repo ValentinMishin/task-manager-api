@@ -5,24 +5,24 @@ INSERT INTO task_type (code, priority, description) VALUES
 ('important', 1, 'Важные задачи (высокий приоритет)'),
 ('urgent', 0, 'Срочные задачи (критический приоритет)');
 
-INSERT INTO tag (title, created_at, updated_at) VALUES
-('backend', CURRENT_TIMESTAMP, NULL),
-('frontend', CURRENT_TIMESTAMP, NULL),
-('database', CURRENT_TIMESTAMP, NULL),
-('security', CURRENT_TIMESTAMP, NULL),
-('ui/ux', CURRENT_TIMESTAMP, NULL),
-('critical', CURRENT_TIMESTAMP, NULL),
-('refactoring', CURRENT_TIMESTAMP, NULL),
-('testing', CURRENT_TIMESTAMP, NULL),
-('tag-with-no tasks', CURRENT_TIMESTAMP, NULL);
+INSERT INTO tag (title) VALUES
+('backend'),
+('frontend'),
+('database'),
+('security'),
+('ui/ux'),
+('critical'),
+('refactoring'),
+('testing'),
+('tag-with-no tasks');
 
-INSERT INTO task (title, type_id, description, due_date, created_at, updated_at) VALUES
-('Исправить ошибку авторизации', 3, 'Пользователи не могут войти после обновления', CURRENT_DATE + INTERVAL '5 days', CURRENT_TIMESTAMP, NULL),
-('Добавить пагинацию', 1, 'Реализация стандартной функциональности', CURRENT_DATE + INTERVAL '10 days', CURRENT_TIMESTAMP, NULL),
-('Оптимизировать запросы', 2, 'Критически важная оптимизация для production', CURRENT_DATE + INTERVAL '2 days', CURRENT_TIMESTAMP, NULL),
-('Обновить документацию', 1, 'Рутинное обновление документации', CURRENT_DATE + INTERVAL '7 days', CURRENT_TIMESTAMP, NULL),
-('Починить критический баг', 3, 'Система падает при обработке данных', CURRENT_DATE + INTERVAL '1 days', CURRENT_TIMESTAMP, NULL),
-('Рефакторинг сервиса', 2, 'Улучшение кода важного модуля', CURRENT_DATE + INTERVAL '5 days', CURRENT_TIMESTAMP, NULL);
+INSERT INTO task (title, type_id, description, due_date) VALUES
+('Исправить ошибку авторизации', 3, 'Пользователи не могут войти после обновления', CURRENT_DATE + INTERVAL '5 days'),
+('Добавить пагинацию', 1, 'Реализация стандартной функциональности', CURRENT_DATE + INTERVAL '10 days'),
+('Оптимизировать запросы', 2, 'Критически важная оптимизация для production', CURRENT_DATE + INTERVAL '2 days'),
+('Обновить документацию', 1, 'Рутинное обновление документации', CURRENT_DATE + INTERVAL '7 days'),
+('Починить критический баг', 3, 'Система падает при обработке данных', CURRENT_DATE + INTERVAL '1 days'),
+('Рефакторинг сервиса', 2, 'Улучшение кода важного модуля', CURRENT_DATE + INTERVAL '5 days');
 
 INSERT INTO task_tag (task_id, tag_id) VALUES
 (1, 1), (1, 4),  -- backend, security (ошибка авторизации)

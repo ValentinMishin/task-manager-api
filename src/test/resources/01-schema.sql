@@ -22,9 +22,7 @@ CREATE TABLE attachment (
 
 CREATE TABLE tag (
     id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    title VARCHAR(255) NOT NULL UNIQUE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NULL
+    title VARCHAR(255) NOT NULL UNIQUE
 );
 
 CREATE TABLE task (
@@ -33,8 +31,6 @@ CREATE TABLE task (
     type_id BIGINT NOT NULL,
     description TEXT,
     due_date DATE NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NULL,
     attachment_id BIGINT UNIQUE,
     FOREIGN KEY (type_id) REFERENCES task_type(id),
     FOREIGN KEY (attachment_id) REFERENCES attachment(id) ON DELETE SET NULL

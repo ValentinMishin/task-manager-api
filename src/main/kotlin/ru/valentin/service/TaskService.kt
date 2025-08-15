@@ -7,7 +7,7 @@ import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import ru.valentin.dto.response.task.TaskWithTagsDTO
-import ru.valentin.dto.ViewToDtoConverter
+import ru.valentin.dto.Converter
 import ru.valentin.dto.request.CreateTaskDto
 import ru.valentin.dto.request.NewTagDto
 import ru.valentin.dto.request.UpdateTaskDto
@@ -35,8 +35,7 @@ class TaskService(
             .orElseThrow { EntityNotFoundException("Тип задачи с ID: ${request.typeId}") }
 
         // Обработка тегов
-        var tags = processTags(request.existingTagIds, request.newTags)
-        if (tags == null) tags = emptySet()
+        val tags = processTagsToAdd(request.existingTagIds, request.newTags)
 
         // Создание задачи
         val task = Task(
@@ -44,7 +43,7 @@ class TaskService(
             type = taskType,
             description = request.description,
             dueDate = request.dueDate,
-            tags = tags.toMutableSet()
+            tags = tags
         ).let(taskRepository::save)
 
         return task.toDto()
@@ -63,14 +62,13 @@ class TaskService(
         }
 
         // Обрабатываем теги для добавления
-        val tagsToAdd = processTags(request.tagsToAddIds, request.newTagsToAdd)
+        val tagsToAdd = processTagsToAdd(request.tagsToAddIds, request.newTagsToAdd)
 
-        // Удаляем указанные теги
-        var tagsToRemove: List<Tag>? = null
-        if (request.tagsToRemoveIds != null) {
-            tagsToRemove = tagRepository.findAllById(request.tagsToRemoveIds)
-            // удаляем связи, через JPA так как сущность все равно сохранятьа
-            tagsToRemove.forEach { it.tasks.remove(existingTask) }
+        // Удаляем теги из коллекции в задаче
+        if (request.tagsToRemoveIds != null
+            && request.tagsToRemoveIds.isNotEmpty()) {
+            existingTask.tags.removeAll(
+                tagRepository.findAllById(request.tagsToRemoveIds))
         }
 
         existingTask.apply {
@@ -78,10 +76,9 @@ class TaskService(
             taskType?.let { type = it }
             request.description?.let { description = it }
             request.dueDate?.let { dueDate = it}
-            // Удаляем указанные теги
-            tagsToRemove?.let { tags.removeAll(it) }
             // Добавляем новые теги
-            tagsToAdd?.let { tags.addAll(it) }
+            tagsToAdd.takeIf { it.isNotEmpty() }
+                ?.also { tags.addAll(it) }
         }
 
         return taskRepository.save(existingTask).toDto()
@@ -91,7 +88,7 @@ class TaskService(
     @Transactional
     fun deleteTask(taskId: Long) {
         val task = taskRepository.findById(taskId)
-            .orElseThrow { EntityNotFoundException("Task not found with id: $taskId") }
+            .orElseThrow { EntityNotFoundException("Задача с ID $taskId не найдена") }
 
         // Разрываем связи с тегами перед удалением
         taskRepository.deleteTagsFromTask(taskId)
@@ -105,30 +102,38 @@ class TaskService(
     fun getTasksByDateWithPrioritySort(
         date: LocalDate,
         page: Int,
-        size: Int
+        size: Int,
+        sortDirection : String
     ): Page<TaskWithTagsDTO> {
         val pageable: Pageable = PageRequest.of(
             page,
             size,
-            Sort.by(Sort.Direction.DESC, "priority")
+            Sort.by(Sort.Direction.fromString(sortDirection),
+                "type.priority")
         )
 
-        val taskViews = taskRepository
-            .findAllByDateOrderByTypePriority(date, pageable)
-        return taskViews.map { ViewToDtoConverter.toTaskWithTagsDTO(
-            it, tagRepository.findTagsByTask(it.getId())
-        ) }
+//        val taskViews = taskRepository
+//            .findAllByDateOrderByTypePriority(date, pageable)
+//        return taskViews.map { Converter.toTaskWithTagsDTO(
+//            it, tagRepository.findTagsByTask(it.getId())
+//        ) }
+        val tasks = taskRepository
+            .findAllByDueDateWithTasks(date,pageable)
+        return tasks.map { Converter.toTaskWithTagsDTO(it) }
     }
 
-    private fun processTags(
+    private fun processTagsToAdd(
         existingTagIds: Set<Long>?,
         newTags: Set<NewTagDto>?
-    ): Set<Tag>? {
-        if (existingTagIds == null && newTags == null)
-            return null
+    ): MutableSet<Tag> {
 
         val tags = mutableSetOf<Tag>()
 
+        //оба пустые или нул?
+        if ( !(existingTagIds != null && existingTagIds.isNotEmpty())
+            && !(newTags != null && newTags.isNotEmpty())) {
+             return tags
+        }
         // Добавляем существующие теги
         existingTagIds?.let {
             if (existingTagIds.isNotEmpty()) {
@@ -140,9 +145,9 @@ class TaskService(
         newTags?.let {
             newTags.forEach { newTag ->
                 tagRepository.findByTitle(newTag.title)?.let {
-                    tags.add(it)
+                    tags.add(it) //если уже существуют добавляем
                 } ?: run {
-                    tags.add(tagRepository.save(Tag(title = newTag.title)))
+                    tags.add(tagRepository.save(Tag(title = newTag.title))) //создаем новый и добавляем
                 }
             }
         }

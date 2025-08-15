@@ -5,8 +5,11 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 import org.springframework.test.annotation.Commit
 import org.springframework.test.context.ActiveProfiles
+import ru.valentin.dto.Converter
 import ru.valentin.dto.request.CreateTaskDto
 import ru.valentin.dto.request.NewTagDto
 import ru.valentin.model.TaskType
@@ -68,11 +71,19 @@ class ServicesTest {
 
     @Test
     fun testSelect() {
-        val test = taskService.getTasksByDateWithPrioritySort(
-            LocalDate.of(2025,8,18),
+//        val test = taskService.getTasksByDateWithPrioritySort(
+//            LocalDate.of(2025,8,18),
+//            0,
+//            5
+//        )
+        val pageable: Pageable = PageRequest.of(
             0,
             5
         )
+
+        val test0 = taskRepository.findAllByDueDateWithTasks(
+            LocalDate.of(2025,8,20), pageable)
+        val dto = test0.map { Converter.toTaskWithTagsDTO(it) }
 
         val test1 = tagService.findTagsHavingTasks()
 

@@ -13,14 +13,29 @@ import ru.valentin.exception.attachment.AttachmentNeedNameException
 import ru.valentin.exception.attachment.AttachmentNotFoundAtServerStorageException
 import ru.valentin.exception.attachment.AttachmentNotFoundException
 import javax.persistence.EntityNotFoundException
+import javax.validation.ConstraintViolationException
 
 @ControllerAdvice
 class GlobalExceptionHandler {
 
+    @ExceptionHandler(ConstraintViolationException::class)
+    fun handleValidationExceptions(ex: ConstraintViolationException): ResponseEntity<ErrorResponse> {
+        val errors = ex.constraintViolations
+            .associate { it.propertyPath.toString() to it.message }
+
+        return ResponseEntity.badRequest()
+            .body(ErrorResponse(
+                status = HttpStatus.BAD_REQUEST.value(),
+                message = "Валидация не пройдена",
+                errors = errors
+            ))
+    }
+
     @ExceptionHandler(
         AttachmentIsEmptyException::class,
         AttachmentAlreadyAppliedToTaskException::class,
-        AttachmentNeedNameException::class)
+        AttachmentNeedNameException::class,
+        InvalidSortParametersException::class)
     fun handleAttachmentRequestException(ex: RuntimeException) :
         ResponseEntity<ErrorResponse> {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)

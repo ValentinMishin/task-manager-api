@@ -56,18 +56,8 @@ data class Task(
             type = type.toShortDto(),
             description = description,
             dueDate = dueDate,
-            tags = tags.map { it.toShortDto() }.toSet()
+            tags = tags.map { it.toShortDto() }.toMutableSet()
         )
-    }
-
-    fun addTagWithUpdateTasks(tag: Tag) {
-        tags.add(tag)
-        tag.tasks.add(this)
-    }
-
-    fun removeTagWithUpdateTasks(tag: Tag) {
-        tags.remove(tag)
-        tag.tasks.remove(this)
     }
 
     override fun toString(): String {
