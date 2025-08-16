@@ -17,11 +17,11 @@ spring:
         max-page-size: 100
   datasource:
     hikari:
-      connectionTimeout: ${DB_CONNECTION_TIMEOUT}
-      maximumPoolSize: ${DB_POOL_SIZE}
-    password: ${DB_PASSWORD}
-    url: ${DB_URL}
-    username: ${DB_USERNAME}
+      connectionTimeout: 20000
+      maximumPoolSize: 5
+    password: admin
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: admin
   jpa:
     hibernate:
       ddl-auto: none

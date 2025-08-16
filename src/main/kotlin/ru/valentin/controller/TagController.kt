@@ -19,6 +19,7 @@ import ru.valentin.dto.response.tag.TagNoTasksDTO
 import ru.valentin.dto.response.tag.TagWithTasksDTO
 import ru.valentin.dto.response.task.TaskWithTagsDTO
 import ru.valentin.service.TagService
+import javax.validation.Valid
 
 @RestController
 @RequestMapping("/api/tags")
@@ -28,7 +29,7 @@ class TagController(
     @PostMapping(
         produces = [MediaType.APPLICATION_JSON_VALUE]
     )
-    fun createTag(@RequestBody createTagDto: CreateTagDto):
+    fun createTag(@Valid @RequestBody createTagDto: CreateTagDto):
             ResponseEntity<TagWithTasksDTO> {
         val createdTag = tagService.createTag(createTagDto)
 
@@ -46,7 +47,7 @@ class TagController(
         produces = [MediaType.APPLICATION_JSON_VALUE]
     )
     fun updateTag(tagId: Long,
-                   @RequestBody updateTagDto: UpdateTagDto):
+                   @Valid @RequestBody updateTagDto: UpdateTagDto):
             ResponseEntity<TagWithTasksDTO> {
         val updatedTag = tagService.updateTag(tagId, updateTagDto)
 

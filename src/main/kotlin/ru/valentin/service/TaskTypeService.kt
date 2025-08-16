@@ -5,6 +5,7 @@ import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Service
 import ru.valentin.dto.response.taskType.TaskTypeNoTasksDto
 import ru.valentin.repository.TaskTypeRepository
+import javax.persistence.EntityNotFoundException
 
 @Service
 class TaskTypeService(
@@ -15,7 +16,7 @@ class TaskTypeService(
     fun findAllTypes(): Set<TaskTypeNoTasksDto> {
         val taskTypes = taskTypeRepository.findAllByOrderByPriorityDesc()
         if (taskTypes.isEmpty())
-            throw Exception("No Task Types found")
+            throw EntityNotFoundException("Типы задач не определены")
 
         val res = mutableSetOf<TaskTypeNoTasksDto>()
         taskTypes.forEach {

@@ -53,7 +53,6 @@ class GlobalExceptionHandler(
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
             .body(ValidationErrorResponse(
                 status = HttpStatus.BAD_REQUEST.value(),
-                path = (request as ServletWebRequest).request.requestURI,
                 errors = errors
             ))
     }

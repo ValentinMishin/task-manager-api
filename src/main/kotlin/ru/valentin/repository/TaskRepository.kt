@@ -36,29 +36,6 @@ interface TaskRepository : JpaRepository<Task, Long> {
     )
     fun findAllByTagIdSortedByPriority(@Param("tagId") tagId: Long): List<TaskNoTagsView>
 
-    @Query(
-        value = """
-            select 
-					tsk.id as id,
-                    tsk.title as title,
-                    tsk.due_date as dueDate,
-                    tsk.description as description,
-                    tsk.type_id as typeId,
-                    tp.code as typeCode,
-                    tp.priority as typePriority,
-                    tp.description as typeDescription
-            from task tsk
-            join task_type tp on tp.id  = tsk.type_id 
-            where tsk.due_date = :dueDate
-            order by tp.priority asc
-        """,
-        nativeQuery = true
-    )
-    fun findAllByDateOrderByTypePriority
-                (@Param("dueDate") dueDate: LocalDate,
-                 pageable: Pageable
-    ): Page<TaskNoTagsView>
-
     @EntityGraph(attributePaths = ["type", "tags"])
     @Query("SELECT t FROM Task t WHERE t.dueDate = :dueDate")
     fun findAllByDueDateWithTasks(

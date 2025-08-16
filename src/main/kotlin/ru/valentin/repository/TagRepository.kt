@@ -37,18 +37,6 @@ interface TagRepository : JpaRepository<Tag, Long> {
 
     @Query(
         value = """
-            select  t.id as id,
-		            t.title as title 
-            from task_tag tt
-            join tag t on tt.tag_id = t.id
-            where tt.task_id = :taskId
-        """,
-        nativeQuery = true
-    )
-    fun findTagsByTask(@Param("taskId") taskId: Long): Set<TagNoTasksView>
-
-    @Query(
-        value = """
             SELECT EXISTS(SELECT 1 FROM task_tag WHERE tag_id = :tagId)
         """,
         nativeQuery = true

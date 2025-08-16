@@ -1,33 +1,30 @@
 package ru.valentin
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
-import org.springframework.data.domain.PageRequest
-import org.springframework.data.domain.Pageable
 import org.springframework.test.annotation.Commit
 import org.springframework.test.context.ActiveProfiles
-import ru.valentin.dto.Converter
 import ru.valentin.dto.request.CreateTaskDto
 import ru.valentin.dto.request.NewTagDto
+import ru.valentin.dto.request.UpdateTaskDto
 import ru.valentin.model.TaskType
 import ru.valentin.repository.TagRepository
 import ru.valentin.repository.TaskRepository
 import ru.valentin.repository.TaskTypeRepository
 import ru.valentin.service.TagService
 import ru.valentin.service.TaskService
-import java.io.File
 import java.time.LocalDate
 import javax.transaction.Transactional
+import kotlin.test.assertEquals
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("test")
 @Transactional
-class ServicesTest {
+class ServiceTest {
     private lateinit var taskService: TaskService
     private lateinit var tagService: TagService
 
@@ -53,50 +50,62 @@ class ServicesTest {
 
     @Test
     @Commit
-    fun testCreation() {
-        val request2 = CreateTaskDto(
+    fun `created task with 2 existing tags and new tags`() {
+        val createRequestTask = CreateTaskDto(
             title = "Подготовить презентацию",
-            typeId = 2, // Тип с ID=2 (например, "PRESENTATION")
+            typeId = 2,
             description = "Слайды для руководства",
             dueDate = LocalDate.now().plusDays(7),
-            existingTagIds = emptySet(),
+            existingTagIds = setOf(1L,2L, 100L),
             newTags = setOf(
                 NewTagDto("важно"),
                 NewTagDto("презентация")
             )
         )
-
-        val createResp = taskService.createTask(request2)
-
-        val delete = taskService.deleteTask(7)
+        val createResp = taskService.createTask(createRequestTask)
+        assertEquals(createResp.tags.size, 2)
     }
 
     @Test
-    fun testSelect() {
-//        val test = taskService.getTasksByDateWithPrioritySort(
-//            LocalDate.of(2025,8,18),
-//            0,
-//            5
-//        )
-        val pageable: Pageable = PageRequest.of(
-            0,
-            5
-        )
+    fun `updated task with id=1 should remove 1,4 tag and add 2,3 and "analytic"` () {
+        val updateTask = UpdateTaskDto(
+            title = "Новое название",
+            dueDate = null,
+            tagsToAddIds = setOf(3L, 2L),
+            tagsToRemoveIds = setOf(1L, 4L),
+            newTagsToAdd = setOf(
+                NewTagDto("analytic")
+            ),
+            typeId = null,
+            description = null
+        ).let { taskService.updateTask(1L, it) }
+        val idS = updateTask.tags.map { (id, title) -> id }.toSet()
+        assertEquals(idS, setOf(3L,10L,2L))
+    }
 
-        val test0 = taskRepository.findAllByDueDateWithTasks(
-            LocalDate.of(2025,8,20), pageable)
-        val dto = test0.map { Converter.toTaskWithTagsDTO(it) }
+    @Test
+    fun `5 days later most priority task has id 1`(){
+        val res = taskService.getTasksByDateWithPrioritySort(
+            LocalDate.now().plusDays(5),
+            0, 5, "asc")
+        assertEquals(res.first().id, 1)
 
-        val test1 = tagService.findTagsHavingTasks()
+    }
+    @Test
+    fun `tag with id=1 should has 5 tasks` () {
+        val res = tagService.findTagWithTasksSortedByPriority(1)
+        assertEquals(res.tasks.size, 5)
+    }
 
-        val test2 = tagService.findTagWithTasksSortedByPriority(1)
+    @Test
+    fun `expected 8 tags having tasks` () {
+        val res = tagService.findTagsHavingTasks()
+        assertEquals(res.size, 8)
+    }
 
-        val test4 = taskTypeRepository.findAllByOrderByPriorityDesc()
-
-//        val mapper = jacksonObjectMapper()
-//        val dto = MyDto("value1", 123)
-
-//        val json = mapper.writeValueAsString(dto)
-//        mapper.writeValue(File("data.json"), dto)
+    @Test
+    fun `expected 3 types of task` () {
+        val res = taskTypeRepository.findAllByOrderByPriorityDesc()
+        assertEquals(res.size, 3)
     }
 }
