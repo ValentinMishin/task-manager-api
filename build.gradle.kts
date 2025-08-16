@@ -1,4 +1,6 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.util.profile
+import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 plugins {
     id("org.springframework.boot") version "2.7.18"
@@ -6,7 +8,7 @@ plugins {
     kotlin("jvm") version "1.6.21"  // Версия Kotlin для Spring Boot 2.7
     kotlin("plugin.spring") version "1.6.21"
     kotlin("plugin.jpa") version "1.6.21"
-    war
+//    war
 }
 
 //allOpen {
@@ -27,6 +29,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
+
+    //for Date
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
 
     //validation
     implementation("org.springframework.boot:spring-boot-starter-validation")
@@ -49,8 +54,28 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 
-    providedRuntime("org.springframework.boot:spring-boot-starter-tomcat")
+//    providedRuntime("org.springframework.boot:spring-boot-starter-tomcat")
     testImplementation(kotlin("test"))
+}
+
+//tasks.withType<BootJar> {
+//    archiveFileName.set("task-manager-api.jar") // Имя выходного файла
+////    archiveVersion.set("1.0.0")
+//    manifest {
+//        attributes(
+//            "Main-Class" to "ru.valentin.Application"
+//        )
+//    }
+//}
+
+tasks.bootJar {
+    archiveFileName.set("task-manager-api.jar")
+    mainClass.set("ru.valentin.Application.kt")
+}
+
+tasks.bootRun {
+    mainClass.set("ru.valentin.Application")
+    systemProperty("spring.profiles.active", "dev")
 }
 
 //для запуска в тестовом окружении

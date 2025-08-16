@@ -1,0 +1,8 @@
+spring:
+  datasource:
+    hikari:
+      connectionTimeout: 20000
+      maximumPoolSize: 5
+    password: ksppsk
+    url: jdbc:postgresql://localhost:5432/test
+    username: valentin

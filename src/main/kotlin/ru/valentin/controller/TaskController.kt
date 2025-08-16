@@ -18,6 +18,7 @@ import ru.valentin.dto.request.UpdateTaskDto
 import ru.valentin.dto.response.task.TaskWithTagsDTO
 import ru.valentin.service.TaskService
 import java.time.LocalDate
+import javax.validation.Valid
 import javax.validation.constraints.Max
 import javax.validation.constraints.Min
 import javax.validation.constraints.Pattern
@@ -31,7 +32,7 @@ class TaskController(
     @PostMapping(
         produces = [MediaType.APPLICATION_JSON_VALUE]
     )
-    fun createTask(@RequestBody createTaskDto: CreateTaskDto):
+    fun createTask(@Valid @RequestBody createTaskDto: CreateTaskDto):
             ResponseEntity<TaskWithTagsDTO> {
         val createdTask = taskService.createTask(createTaskDto)
 
@@ -49,7 +50,7 @@ class TaskController(
         produces = [MediaType.APPLICATION_JSON_VALUE]
     )
     fun updateTask(taskId: Long,
-                   @RequestBody updateTaskDto: UpdateTaskDto):
+                   @Valid @RequestBody updateTaskDto: UpdateTaskDto):
             ResponseEntity<TaskWithTagsDTO> {
         val updatedTask = taskService.updateTask(taskId, updateTaskDto)
 
@@ -69,7 +70,7 @@ class TaskController(
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)date: LocalDate,
         page: Int,
         size: Int,
-        @Pattern(regexp = "asc|desc",
+        @Valid @Pattern(regexp = "asc|desc",
             message = "asc или desc") sort: String
     ): ResponseEntity<Page<TaskWithTagsDTO>> {
 

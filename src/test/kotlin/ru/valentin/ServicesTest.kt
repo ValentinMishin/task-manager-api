@@ -1,5 +1,6 @@
 package ru.valentin
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -18,6 +19,7 @@ import ru.valentin.repository.TaskRepository
 import ru.valentin.repository.TaskTypeRepository
 import ru.valentin.service.TagService
 import ru.valentin.service.TaskService
+import java.io.File
 import java.time.LocalDate
 import javax.transaction.Transactional
 
@@ -90,5 +92,11 @@ class ServicesTest {
         val test2 = tagService.findTagWithTasksSortedByPriority(1)
 
         val test4 = taskTypeRepository.findAllByOrderByPriorityDesc()
+
+//        val mapper = jacksonObjectMapper()
+//        val dto = MyDto("value1", 123)
+
+//        val json = mapper.writeValueAsString(dto)
+//        mapper.writeValue(File("data.json"), dto)
     }
 }

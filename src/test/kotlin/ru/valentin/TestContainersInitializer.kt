@@ -40,13 +40,6 @@ class TestContainersInitializer : ApplicationContextInitializer<ConfigurableAppl
     }
 
     override fun initialize(applicationContext: ConfigurableApplicationContext) {
-//        postgres.start()
-//
-//        System.setProperty("spring.datasource.url", postgres.jdbcUrl)
-//        System.setProperty("spring.datasource.username", postgres.username)
-//        System.setProperty("spring.datasource.password", postgres.password)
-//        System.setProperty("spring.jpa.hibernate.ddl-auto", "none")
-
         TestPropertyValues.of(
             "spring.datasource.url=${postgres.jdbcUrl}",
             "spring.datasource.username=${postgres.username}",
