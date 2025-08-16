@@ -17,7 +17,6 @@ data class Tag(
     var title: String,
 
     @ManyToMany(mappedBy = "tags")
-    @OrderBy("type.priority DESC, dueDate Asc")
     var tasks: MutableSet<Task> = mutableSetOf()
 ) {
     //utils TO DTO

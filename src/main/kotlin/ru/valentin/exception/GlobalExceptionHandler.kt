@@ -9,6 +9,7 @@ import org.springframework.context.support.DefaultMessageSourceResolvable
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import org.springframework.validation.BindException
 import org.springframework.validation.FieldError
 import org.springframework.validation.ObjectError
 import org.springframework.web.bind.MethodArgumentNotValidException
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.context.request.ServletWebRequest
 import org.springframework.web.context.request.WebRequest
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
 import ru.valentin.dto.error.ErrorResponse
 import ru.valentin.dto.error.ValidationError
 import ru.valentin.dto.error.ValidationErrorResponse
@@ -27,7 +29,9 @@ import ru.valentin.exception.attachment.AttachmentIsEmptyException
 import ru.valentin.exception.attachment.AttachmentNeedNameException
 import ru.valentin.exception.attachment.AttachmentNotFoundAtServerStorageException
 import ru.valentin.exception.attachment.AttachmentNotFoundException
+import java.time.LocalDate
 import javax.persistence.EntityNotFoundException
+import javax.servlet.http.HttpServletRequest
 import javax.validation.ConstraintViolationException
 
 @ControllerAdvice
@@ -36,6 +40,49 @@ class GlobalExceptionHandler(
 ) {
 
     private val log = LoggerFactory.getLogger(javaClass)
+
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException::class)
+    fun handleTypeMismatch(
+        ex: MethodArgumentTypeMismatchException,
+        request: HttpServletRequest
+    ): ResponseEntity<ErrorResponse> {
+        val errorMessage = when (ex.requiredType) {
+            LocalDate::class.java -> "Невалидная дата: YYYY-MM-DD"
+            else -> "Параметр '${ex.name}' с не валидным типом, ожидается: ${ex.requiredType?.simpleName}"
+        }
+
+        return ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
+            .body(ErrorResponse(
+                status = HttpStatus.BAD_REQUEST.value(),
+                details = "Несоответствие типов",
+                message = errorMessage,
+            ))
+    }
+
+
+    // Обработка ошибок валидации @Valid для DTO
+    @ExceptionHandler(BindException::class)
+    fun handleBindException(ex: BindException): ResponseEntity<Map<String, Any>> {
+        val errors = ex.bindingResult.allErrors
+            .mapNotNull { error ->
+                when (error) {
+                    is FieldError -> (error.field to error.defaultMessage)
+                    else -> (error.objectName to error.defaultMessage)
+                }
+            }
+            .toMap()
+
+        return ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
+            .body(mapOf(
+                "status" to HttpStatus.BAD_REQUEST.value(),
+                "error" to "Validation failed",
+                "message" to "Invalid request parameters",
+                "errors" to errors
+            ))
+    }
 
     @ExceptionHandler(MethodArgumentNotValidException::class)
     fun handleValidationException(

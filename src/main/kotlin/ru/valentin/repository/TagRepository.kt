@@ -17,8 +17,8 @@ interface TagRepository : JpaRepository<Tag, Long> {
     )
     fun findTaskIdsById(@Param("tagId") tagId: Long): List<Long>
 
-    @EntityGraph(attributePaths = ["tasks.type"])
-    fun findWithTasksAndTaskTypeById(@Param("tagId") tagId: Long): Optional<Tag>
+//    @EntityGraph(attributePaths = ["tasks.type"])
+//    fun findWithTasksAndTaskTypeById(@Param("tagId") tagId: Long): Optional<Tag>
 
     // Удаление связей
     @Modifying

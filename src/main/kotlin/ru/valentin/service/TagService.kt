@@ -40,8 +40,7 @@ open class TagService (
 //    7. Изменение существующего тега
     @Transactional
     fun updateTag(tagId: Long, request: UpdateTagDto): TagWithTasksDTO {
-//        val updatingTag = tagRepository.findById(tagId)
-        val updatingTag = tagRepository.findWithTasksAndTaskTypeById(tagId)
+        val updatingTag = tagRepository.findById(tagId)
             .orElseThrow { EntityNotFoundException("Тег с ID $tagId не найден") }
 
         // Обновляем основную информацию

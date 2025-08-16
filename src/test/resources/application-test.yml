@@ -7,6 +7,8 @@ spring:
     username: testuser
   jpa:
     show-sql: true
+    properties:
+      hibernate.format_sql: true
   mvc:
     throw-exception-if-no-handler-found: true
   sql:

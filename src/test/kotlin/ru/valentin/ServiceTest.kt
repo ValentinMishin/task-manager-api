@@ -1,11 +1,13 @@
 package ru.valentin
 
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.test.annotation.Commit
+import org.springframework.test.annotation.Rollback
 import org.springframework.test.context.ActiveProfiles
 import ru.valentin.dto.request.CreateTaskDto
 import ru.valentin.dto.request.NewTagDto
@@ -19,6 +21,7 @@ import ru.valentin.repository.TaskTypeRepository
 import ru.valentin.service.TagService
 import ru.valentin.service.TaskService
 import java.time.LocalDate
+import javax.persistence.EntityManager
 import javax.transaction.Transactional
 import kotlin.test.assertEquals
 
@@ -41,6 +44,9 @@ class ServiceTest {
     @Autowired
     private lateinit var tagRepository: TagRepository
 
+    @Autowired
+    private lateinit var entityManager: EntityManager
+
     @BeforeEach
     fun init() {
         regularTaskType = taskTypeRepository.findByCode("regular") ?: throw NoSuchElementException()
@@ -51,8 +57,7 @@ class ServiceTest {
     }
 
     @Test
-    @Commit
-    fun `created task with 2 existing tags and new tags`() {
+    fun `created task with 2 existing tags and apply new 2 tags`() {
         val createRequestTask = CreateTaskDto(
             title = "Подготовить презентацию",
             typeId = 2,
@@ -65,7 +70,9 @@ class ServiceTest {
             )
         )
         val createResp = taskService.createTask(createRequestTask)
-        assertEquals(createResp.tags.size, 2)
+        assertEquals(4, createResp.tags.size)
+        val newTag = tagRepository.findAll()
+        println(newTag.last())
     }
 
     @Test
@@ -82,7 +89,7 @@ class ServiceTest {
             description = null
         ).let { taskService.updateTask(1L, it) }
         val idS = updateTask.tags.map { (id, _) -> id }.toSet()
-        assertEquals(idS, setOf(3L,10L,2L))
+        assertEquals(setOf(3L,10L,2L), idS)
     }
 
     @Test
@@ -92,12 +99,21 @@ class ServiceTest {
             tasksToAddIds = setOf(2L, 3L),
             newTasksToAdd = setOf(NewTaskDto(
                 "ad-hoc",
-                0L,
+                1L,
                 "some description",
                 LocalDate.now().plusDays(10))
             ),
             tasksToRemoveIds = setOf(1L,5L)
         ).let { tagService.updateTag(4L, it) }
+        val idS = updateTagDto.tasks.map { (id, _) -> id }.toSet()
+        assertEquals(setOf(2L,3L,7L), idS)
+    }
+
+    @Test
+    fun `should delete tag with id=1 with all its tasks` () {
+        tagService.deleteTagWithTasks(1L)
+        assertEquals(1,taskRepository.findAll().size)
+        assertEquals(true, tagRepository.findById(1).isEmpty)
     }
 
     @Test
@@ -105,24 +121,24 @@ class ServiceTest {
         val res = taskService.getTasksByDateWithPrioritySort(
             LocalDate.now().plusDays(5),
             0, 5, "asc")
-        assertEquals(res.first().id, 1)
+        assertEquals( 1, res.first().id)
 
     }
     @Test
     fun `tag with id=1 should has 5 tasks` () {
         val res = tagService.findTagWithTasksSortedByPriority(1)
-        assertEquals(res.tasks.size, 5)
+        assertEquals( 5, res.tasks.size)
     }
 
     @Test
     fun `expected 8 tags having tasks` () {
         val res = tagService.findTagsHavingTasks()
-        assertEquals(res.size, 8)
+        assertEquals(8,res.size)
     }
 
     @Test
     fun `expected 3 types of task` () {
         val res = taskTypeRepository.findAllByOrderByPriorityDesc()
-        assertEquals(res.size, 3)
+        assertEquals(3, res.size)
     }
 }

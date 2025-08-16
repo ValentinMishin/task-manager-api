@@ -1,11 +1,15 @@
 package ru.valentin.controller
 
+import org.hibernate.validator.constraints.Range
 import org.springframework.data.domain.Page
+import org.springframework.data.domain.Sort
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -18,6 +22,7 @@ import ru.valentin.dto.request.UpdateTaskDto
 import ru.valentin.dto.response.task.TaskWithTagsDTO
 import ru.valentin.service.TaskService
 import java.time.LocalDate
+import javax.validation.ConstraintViolationException
 import javax.validation.Valid
 import javax.validation.constraints.Max
 import javax.validation.constraints.Min
@@ -66,20 +71,32 @@ class TaskController(
 
     @GetMapping("/by-date",
         produces = [MediaType.APPLICATION_JSON_VALUE])
+    @Validated
     fun getTasksByDateWithPrioritySort(
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)date: LocalDate,
-        page: Int,
-        size: Int,
-        @Valid @Pattern(regexp = "asc|desc",
-            message = "asc или desc") sort: String
+        @RequestParam
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+        date: LocalDate,
+        @Valid @ModelAttribute pagination: PaginationParams
     ): ResponseEntity<Page<TaskWithTagsDTO>> {
 
         val result = taskService
-            .getTasksByDateWithPrioritySort(date, page, size, sort)
+            .getTasksByDateWithPrioritySort(date, pagination.page,
+                pagination.size, pagination.sort)
 
         return ResponseEntity.ok()
             .header("X-Total-Elements", result.totalElements.toString())
             .header("X-Total-Pages", result.totalPages.toString())
             .body(result)
     }
+
+    data class PaginationParams(
+        @field:Min(0, message = "Страница не может быть отрицательной")
+        val page: Int = 0,
+
+        @field:Range(min = 1, max = 100, message = "Количество в диапазоне от 1 до 100")
+        val size: Int = 20,
+
+        @field:Pattern(regexp = "asc|desc", message = "По возрастанию 'asc' или по убыванию 'desc'")
+        val sort: String = "asc"
+    )
 }
