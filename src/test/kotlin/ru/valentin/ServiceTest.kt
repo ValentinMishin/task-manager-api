@@ -9,6 +9,8 @@ import org.springframework.test.annotation.Commit
 import org.springframework.test.context.ActiveProfiles
 import ru.valentin.dto.request.CreateTaskDto
 import ru.valentin.dto.request.NewTagDto
+import ru.valentin.dto.request.NewTaskDto
+import ru.valentin.dto.request.UpdateTagDto
 import ru.valentin.dto.request.UpdateTaskDto
 import ru.valentin.model.TaskType
 import ru.valentin.repository.TagRepository
@@ -67,7 +69,7 @@ class ServiceTest {
     }
 
     @Test
-    fun `updated task with id=1 should remove 1,4 tag and add 2,3 and "analytic"` () {
+    fun `updated task with id=1 should remove 1,4 tag and add 2,3 and analytic` () {
         val updateTask = UpdateTaskDto(
             title = "Новое название",
             dueDate = null,
@@ -79,8 +81,23 @@ class ServiceTest {
             typeId = null,
             description = null
         ).let { taskService.updateTask(1L, it) }
-        val idS = updateTask.tags.map { (id, title) -> id }.toSet()
+        val idS = updateTask.tags.map { (id, _) -> id }.toSet()
         assertEquals(idS, setOf(3L,10L,2L))
+    }
+
+    @Test
+    fun `updated tag with id=4 should remove task 1,5 add task 2,3 and apply new Task` () {
+        val updateTagDto = UpdateTagDto(
+            title = "super-security",
+            tasksToAddIds = setOf(2L, 3L),
+            newTasksToAdd = setOf(NewTaskDto(
+                "ad-hoc",
+                0L,
+                "some description",
+                LocalDate.now().plusDays(10))
+            ),
+            tasksToRemoveIds = setOf(1L,5L)
+        ).let { tagService.updateTag(4L, it) }
     }
 
     @Test

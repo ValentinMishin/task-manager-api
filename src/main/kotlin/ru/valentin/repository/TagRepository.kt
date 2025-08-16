@@ -1,11 +1,13 @@
 package ru.valentin.repository
 
+import org.springframework.data.jpa.repository.EntityGraph
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import ru.valentin.dto.response.tag.TagNoTasksView
 import ru.valentin.model.Tag
+import java.util.Optional
 
 interface TagRepository : JpaRepository<Tag, Long> {
     // Получаем ID задач по ID тега
@@ -13,7 +15,10 @@ interface TagRepository : JpaRepository<Tag, Long> {
         value = "SELECT task_id FROM task_tag WHERE tag_id = :tagId",
         nativeQuery = true
     )
-    fun findTaskIdsByTagId(@Param("tagId") tagId: Long): List<Long>
+    fun findTaskIdsById(@Param("tagId") tagId: Long): List<Long>
+
+    @EntityGraph(attributePaths = ["tasks.type"])
+    fun findWithTasksAndTaskTypeById(@Param("tagId") tagId: Long): Optional<Tag>
 
     // Удаление связей
     @Modifying
@@ -21,7 +26,7 @@ interface TagRepository : JpaRepository<Tag, Long> {
         value = "DELETE FROM task_tag WHERE tag_id = :tagId",
         nativeQuery = true
     )
-    fun deleteTagRelationships(@Param("tagId") tagId: Long)
+    fun removeLinksToTasksById(@Param("tagId") tagId: Long)
 
     fun findByTitle(title: String): Tag?
 
@@ -33,7 +38,7 @@ interface TagRepository : JpaRepository<Tag, Long> {
         """,
         nativeQuery = true
     )
-    fun findTagsWithTasks(): Set<TagNoTasksView>
+    fun findAllWithTasks(): Set<TagNoTasksView>
 
     @Query(
         value = """

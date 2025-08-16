@@ -40,7 +40,8 @@ open class TagService (
 //    7. Изменение существующего тега
     @Transactional
     fun updateTag(tagId: Long, request: UpdateTagDto): TagWithTasksDTO {
-        val updatingTag = tagRepository.findById(tagId)
+//        val updatingTag = tagRepository.findById(tagId)
+        val updatingTag = tagRepository.findWithTasksAndTaskTypeById(tagId)
             .orElseThrow { EntityNotFoundException("Тег с ID $tagId не найден") }
 
         // Обновляем основную информацию
@@ -69,9 +70,9 @@ open class TagService (
             .orElseThrow { EntityNotFoundException("Тег с ID $tagId не найден") }
 
         //связанные задачи
-        val tasksIds = tagRepository.findTaskIdsByTagId(tagId)
+        val tasksIds = tagRepository.findTaskIdsById(tagId)
 //        удаление связей
-        tagRepository.deleteTagRelationships(tagId)
+        tagRepository.removeLinksToTasksById(tagId)
 //         удаление задач
         taskRepository.deleteAllById(tasksIds)
 //         удаление тега
@@ -100,7 +101,7 @@ open class TagService (
 
     //5. Получение всех тегов, у которых есть задачи
     fun findTagsHavingTasks(): Set<TagNoTasksDTO> {
-        val tags = tagRepository.findTagsWithTasks()
+        val tags = tagRepository.findAllWithTasks()
         if (tags.isEmpty())
             throw EntityNotFoundException("Теги с задачами не найдены")
         else {
