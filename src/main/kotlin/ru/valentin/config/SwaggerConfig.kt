@@ -14,6 +14,6 @@ class SwaggerConfig {
             Info()
                 .title("API менеджера задач")
                 .version("1.0")
-                .description("API для управлениями задачамим")
+                .description("API для управлениями задачами")
         )
 }
