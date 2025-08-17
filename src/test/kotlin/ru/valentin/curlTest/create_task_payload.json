@@ -1,0 +1,12 @@
+{
+  "title" : "test1",
+  "typeId" : 1,
+  "description" : "test description for test_task1",
+  "dueDate" : "2025-08-11",
+  "existingTagIds" : [ 1, 2 ],
+  "newTags" : [ {
+    "title" : "test_tag1"
+  }, {
+    "title" : "test_tag2"
+  } ]
+}
