@@ -1,4 +1,4 @@
-curl -s -k -v -X POST  \
+curl -s -k -v -X PUT  \
 https://localhost:8443/api/tasks/ \
   -H "Content-Type: application/json" \
   -d @create_task_payload.json | jq > create_task_output.json

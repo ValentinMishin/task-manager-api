@@ -32,7 +32,7 @@ class TaskService(
     fun createTask(request: CreateTaskDto): TaskWithTagsDTO {
         // Валидация типа задачи
         val taskType = taskTypeRepository.findById(request.typeId)
-            .orElseThrow { EntityNotFoundException("Тип задачи с ID: ${request.typeId}") }
+            .orElseThrow { EntityNotFoundException("Тип задачи с ID: ${request.typeId} не найден") }
 
         // Обработка тегов
         val tags = processTagsToAdd(request.existingTagIds, request.newTags)
@@ -58,7 +58,7 @@ class TaskService(
         var taskType: TaskType? = null
         request.typeId?.let {
             taskType = taskTypeRepository.findById(request.typeId)
-                .orElseThrow { EntityNotFoundException("Тип задачи с ID: ${request.typeId}") }
+                .orElseThrow { EntityNotFoundException("Тип задачи с ID: ${request.typeId} не найден") }
         }
 
         // Обрабатываем теги для добавления
