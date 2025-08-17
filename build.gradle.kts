@@ -8,14 +8,7 @@ plugins {
     kotlin("jvm") version "1.6.21"
     kotlin("plugin.spring") version "1.6.21"
     kotlin("plugin.jpa") version "1.6.21"
-//    war
 }
-
-//allOpen {
-//    annotation("javax.persistence.Entity")
-//    annotation("javax.persistence.Embeddable")
-//    annotation("javax.persistence.MappedSuperclass")
-//}
 
 group = "ru.valentin"
 version = "1.0.0"
@@ -58,23 +51,15 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 
-//    providedRuntime("org.springframework.boot:spring-boot-starter-tomcat")
     testImplementation(kotlin("test"))
 }
 
-//tasks.withType<BootJar> {
-//    archiveFileName.set("task-manager-api.jar") // Имя выходного файла
-////    archiveVersion.set("1.0.0")
-//    manifest {
-//        attributes(
-//            "Main-Class" to "ru.valentin.Application"
-//        )
-//    }
-//}
-
 tasks.bootJar {
-    archiveFileName.set("task-manager-api.jar")
-    mainClass.set("ru.valentin.Application.kt")
+    mainClass.set("ru.valentin.Application")
+}
+
+tasks.named("jar") {
+    enabled = false
 }
 
 tasks.bootRun {

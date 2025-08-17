@@ -3,9 +3,9 @@ spring:
     hikari:
       connectionTimeout: 20000
       maximumPoolSize: 5
-    password: ksppsk
-    url: jdbc:postgresql://localhost:5432/test
-    username: valentin
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
 server:
   ssl:
     enabled: true
