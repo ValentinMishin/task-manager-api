@@ -6,7 +6,7 @@ import ru.valentin.dto.response.tag.TagNoTasksDTO
 import ru.valentin.dto.response.tag.TagWithTasksDTO
 import ru.valentin.dto.Converter
 import ru.valentin.dto.request.CreateTagDto
-import ru.valentin.dto.request.NewTaskDto
+import ru.valentin.dto.request.CreateShortTaskDto
 import ru.valentin.dto.request.UpdateTagDto
 import ru.valentin.model.Tag
 import ru.valentin.model.Task
@@ -111,7 +111,7 @@ open class TagService (
     private fun processTasksAndAddToTag(
         tag: Tag,
         existingTaskIds: Set<Long>?,
-        newTasks: Set<NewTaskDto>?
+        newTasks: Set<CreateShortTaskDto>?
     ) {
         //оба пустые или нул?
         if ( !(existingTaskIds != null && existingTaskIds.isNotEmpty())

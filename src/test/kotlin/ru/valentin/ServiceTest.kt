@@ -1,17 +1,14 @@
 package ru.valentin
 
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
-import org.springframework.test.annotation.Commit
-import org.springframework.test.annotation.Rollback
 import org.springframework.test.context.ActiveProfiles
 import ru.valentin.dto.request.CreateTaskDto
-import ru.valentin.dto.request.NewTagDto
-import ru.valentin.dto.request.NewTaskDto
+import ru.valentin.dto.request.CreateShortTagDto
+import ru.valentin.dto.request.CreateShortTaskDto
 import ru.valentin.dto.request.UpdateTagDto
 import ru.valentin.dto.request.UpdateTaskDto
 import ru.valentin.model.TaskType
@@ -65,8 +62,8 @@ class ServiceTest {
             dueDate = LocalDate.now().plusDays(7),
             existingTagIds = setOf(1L,2L, 100L),
             newTags = setOf(
-                NewTagDto("важно"),
-                NewTagDto("презентация")
+                CreateShortTagDto("важно"),
+                CreateShortTagDto("презентация")
             )
         )
         val createResp = taskService.createTask(createRequestTask)
@@ -83,7 +80,7 @@ class ServiceTest {
             tagsToAddIds = setOf(3L, 2L),
             tagsToRemoveIds = setOf(1L, 4L),
             newTagsToAdd = setOf(
-                NewTagDto("analytic")
+                CreateShortTagDto("analytic")
             ),
             typeId = null,
             description = null
@@ -97,7 +94,7 @@ class ServiceTest {
         val updateTagDto = UpdateTagDto(
             title = "super-security",
             tasksToAddIds = setOf(2L, 3L),
-            newTasksToAdd = setOf(NewTaskDto(
+            newTasksToAdd = setOf(CreateShortTaskDto(
                 "ad-hoc",
                 1L,
                 "some description",

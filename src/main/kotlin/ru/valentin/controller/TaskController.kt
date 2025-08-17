@@ -1,5 +1,6 @@
 package ru.valentin.controller
 
+import io.swagger.v3.oas.annotations.Operation
 import org.hibernate.validator.constraints.Range
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Sort
@@ -37,6 +38,9 @@ class TaskController(
     @PostMapping(
         produces = [MediaType.APPLICATION_JSON_VALUE]
     )
+    @Operation(
+        summary = "Создание новой задачи"
+    )
     fun createTask(@Valid @RequestBody createTaskDto: CreateTaskDto):
             ResponseEntity<TaskWithTagsDTO> {
         val createdTask = taskService.createTask(createTaskDto)
@@ -50,6 +54,9 @@ class TaskController(
         return ResponseEntity.created(location).body(createdTask)
     }
 
+    @Operation(
+        summary = "Изменение существующей задачи"
+    )
     @PutMapping(
         "/{taskId}",
         produces = [MediaType.APPLICATION_JSON_VALUE]
@@ -62,13 +69,21 @@ class TaskController(
         return ResponseEntity.ok().body(updatedTask)
     }
 
+    @Operation(
+        summary = "Удаление задачи по идентификатору"
+    )
     @DeleteMapping(
         "/{taskId}"
     )
     fun deleteTask(taskId: Long): ResponseEntity<Void> {
+        taskService.deleteTask(taskId)
         return ResponseEntity.noContent().build()
     }
 
+    @Operation(
+        summary = "Получение списка задач за заданную дату" +
+                " с сортировкой по уровню приоритета с пагинацией"
+    )
     @GetMapping("/by-date",
         produces = [MediaType.APPLICATION_JSON_VALUE])
     @Validated

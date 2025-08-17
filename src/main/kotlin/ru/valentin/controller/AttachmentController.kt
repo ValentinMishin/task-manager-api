@@ -1,5 +1,7 @@
 package ru.valentin.controller
 
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.responses.ApiResponse
 import org.springframework.core.io.Resource
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -20,6 +22,9 @@ class AttachmentController(
     private val attachmentService: AttachmentService
 ) {
 
+    @Operation(
+        summary = "Загрузка файла-вложения для задачи",
+    )
     @PostMapping(
         consumes = [MediaType.MULTIPART_FORM_DATA_VALUE],
         produces = [MediaType.APPLICATION_JSON_VALUE]
@@ -35,6 +40,9 @@ class AttachmentController(
         return ResponseEntity.ok().body("Файл прикреплен к задаче с ID $taskId")
     }
 
+    @Operation(
+        summary = "Получение файла-вложения по идентификатору задачи",
+    )
     @GetMapping("/download",
         produces = [MediaType.APPLICATION_JSON_VALUE,
             MediaType.APPLICATION_OCTET_STREAM_VALUE])

@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional
 import ru.valentin.dto.response.task.TaskWithTagsDTO
 import ru.valentin.dto.Converter
 import ru.valentin.dto.request.CreateTaskDto
-import ru.valentin.dto.request.NewTagDto
+import ru.valentin.dto.request.CreateShortTagDto
 import ru.valentin.dto.request.UpdateTaskDto
 import ru.valentin.model.Tag
 import ru.valentin.model.Task
@@ -124,7 +124,7 @@ class TaskService(
 
     private fun processTagsToAdd(
         existingTagIds: Set<Long>?,
-        newTags: Set<NewTagDto>?
+        newTags: Set<CreateShortTagDto>?
     ): MutableSet<Tag> {
 
         val tags = mutableSetOf<Tag>()

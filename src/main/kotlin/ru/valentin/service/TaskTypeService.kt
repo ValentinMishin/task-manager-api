@@ -1,5 +1,6 @@
 package ru.valentin.service
 
+import io.swagger.v3.oas.annotations.Operation
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Service
@@ -12,6 +13,9 @@ class TaskTypeService(
     private val taskTypeRepository: TaskTypeRepository
 ) {
 //    9. Получение списка типов задач с уровнем приоритета
+    @Operation(
+        summary = "Получение списка типов задач с уровнем приоритета"
+    )
     @Cacheable("taskTypes")
     fun findAllTypes(): Set<TaskTypeNoTasksDto> {
         val taskTypes = taskTypeRepository.findAllByOrderByPriorityDesc()

@@ -5,7 +5,7 @@ import org.springframework.boot.gradle.tasks.bundling.BootJar
 plugins {
     id("org.springframework.boot") version "2.7.18"
     id("io.spring.dependency-management") version "1.0.15.RELEASE"
-    kotlin("jvm") version "1.6.21"  // Версия Kotlin для Spring Boot 2.7
+    kotlin("jvm") version "1.6.21"
     kotlin("plugin.spring") version "1.6.21"
     kotlin("plugin.jpa") version "1.6.21"
 //    war
@@ -29,6 +29,10 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
+
+//    doc
+    implementation("org.springdoc:springdoc-openapi-ui:1.6.14")
+    implementation("org.springdoc:springdoc-openapi-kotlin:1.6.14")
 
     //for Date
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")

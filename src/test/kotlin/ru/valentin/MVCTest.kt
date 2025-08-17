@@ -16,7 +16,7 @@ import org.springframework.http.MediaType
 import org.springframework.test.context.ContextConfiguration
 import org.testcontainers.junit.jupiter.Testcontainers
 import ru.valentin.dto.request.CreateTaskDto
-import ru.valentin.dto.request.NewTagDto
+import ru.valentin.dto.request.CreateShortTagDto
 import java.time.LocalDate
 
 @Testcontainers
@@ -48,7 +48,7 @@ class MVCTest () {
 
     @Test
     fun `except 400 validation failed tag field title must not be blank` () {
-        val newTag1 = NewTagDto("")
+        val newTag1 = CreateShortTagDto("")
         RestAssured
             .given()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -65,8 +65,8 @@ class MVCTest () {
         val mapper = jacksonObjectMapper()
             .registerModule(JavaTimeModule())
 
-        val newTag1 = NewTagDto("")
-        val newTag2 = NewTagDto("")
+        val newTag1 = CreateShortTagDto("")
+        val newTag2 = CreateShortTagDto("")
         val newTags = setOf(newTag1, newTag2)
         val existingTags = setOf(1L, 2L)
 

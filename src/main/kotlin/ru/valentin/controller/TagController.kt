@@ -1,5 +1,7 @@
 package ru.valentin.controller
 
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.responses.ApiResponse
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -29,6 +31,9 @@ class TagController(
     @PostMapping(
         produces = [MediaType.APPLICATION_JSON_VALUE]
     )
+    @Operation(
+        summary = "Создание нового тега"
+    )
     fun createTag(@Valid @RequestBody createTagDto: CreateTagDto):
             ResponseEntity<TagWithTasksDTO> {
         val createdTag = tagService.createTag(createTagDto)
@@ -42,6 +47,9 @@ class TagController(
         return ResponseEntity.created(location).body(createdTag)
     }
 
+    @Operation(
+        summary = "Изменение существующего тега"
+    )
     @PutMapping(
         "/{tagId}",
         produces = [MediaType.APPLICATION_JSON_VALUE]
@@ -54,13 +62,20 @@ class TagController(
         return ResponseEntity.ok().body(updatedTag)
     }
 
+    @Operation(
+        summary = "Удаление тега по идентификатору (вместе с его задачами)"
+    )
     @DeleteMapping(
         "/{tagId}"
     )
     fun deleteTag(tagId: Long): ResponseEntity<Void> {
+        tagService.deleteTagWithTasks(tagId)
         return ResponseEntity.noContent().build()
     }
 
+    @Operation(
+        summary = "Получение тега по идентификатору с задачами, сортированными по приоритету"
+    )
     //4 /api/tags/{id}/tasks
     @GetMapping("/{id}/tasks",
         produces = [MediaType.APPLICATION_JSON_VALUE])
@@ -71,6 +86,9 @@ class TagController(
             return ResponseEntity.ok(result)
     }
 
+    @Operation(
+        summary = "Получение всех тегов, у которых есть задачи"
+    )
     @GetMapping("/with-tasks",
         produces = [MediaType.APPLICATION_JSON_VALUE])
     fun getTagsWithTasks(
