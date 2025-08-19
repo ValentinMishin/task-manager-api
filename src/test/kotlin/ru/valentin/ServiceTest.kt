@@ -4,35 +4,29 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
-import org.springframework.test.context.ActiveProfiles
-import ru.valentin.dto.request.CreateTaskDto
-import ru.valentin.dto.request.CreateShortTagDto
-import ru.valentin.dto.request.CreateShortTaskDto
-import ru.valentin.dto.request.UpdateTagDto
-import ru.valentin.dto.request.UpdateTaskDto
-import ru.valentin.model.TaskType
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.test.context.ContextConfiguration
+import org.springframework.test.context.jdbc.Sql
+import org.springframework.transaction.annotation.Transactional
+import org.testcontainers.junit.jupiter.Testcontainers
+import ru.valentin.dto.request.*
 import ru.valentin.repository.TagRepository
 import ru.valentin.repository.TaskRepository
 import ru.valentin.repository.TaskTypeRepository
 import ru.valentin.service.TagService
 import ru.valentin.service.TaskService
 import java.time.LocalDate
-import javax.persistence.EntityManager
-import javax.transaction.Transactional
 import kotlin.test.assertEquals
 
-@DataJpaTest
+@Testcontainers
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@ActiveProfiles("test")
+@ContextConfiguration(initializers = [TestContainersInitializer::class])
+@SpringBootTest
 @Transactional
 class ServiceTest {
+
     private lateinit var taskService: TaskService
     private lateinit var tagService: TagService
-
-    private lateinit var regularTaskType: TaskType
-    private lateinit var importantTaskType: TaskType
-    private lateinit var urgentTaskType: TaskType
 
     @Autowired
     private lateinit var taskRepository: TaskRepository
@@ -41,14 +35,8 @@ class ServiceTest {
     @Autowired
     private lateinit var tagRepository: TagRepository
 
-    @Autowired
-    private lateinit var entityManager: EntityManager
-
     @BeforeEach
     fun init() {
-        regularTaskType = taskTypeRepository.findByCode("regular") ?: throw NoSuchElementException()
-        importantTaskType = taskTypeRepository.findByCode("important") ?: throw NoSuchElementException()
-        urgentTaskType = taskTypeRepository.findByCode("urgent") ?: throw NoSuchElementException()
         taskService = TaskService(taskRepository,tagRepository,taskTypeRepository)
         tagService = TagService(taskRepository,tagRepository,taskTypeRepository)
     }
@@ -68,11 +56,10 @@ class ServiceTest {
         )
         val createResp = taskService.createTask(createRequestTask)
         assertEquals(4, createResp.tags.size)
-        val newTag = tagRepository.findAll()
-        println(newTag.last())
     }
 
     @Test
+    @Sql("/02-data.sql") //тест на базовых данных, избежать результатов соседних тестов
     fun `updated task with id=1 should remove 1,4 tag and add 2,3 and analytic` () {
         val updateTask = UpdateTaskDto(
             title = "Новое название",
@@ -89,7 +76,9 @@ class ServiceTest {
         assertEquals(setOf(3L,10L,2L), idS)
     }
 
+
     @Test
+    @Sql("/02-data.sql")
     fun `updated tag with id=4 should remove task 1,5 add task 2,3 and apply new Task` () {
         val updateTagDto = UpdateTagDto(
             title = "super-security",
@@ -106,6 +95,7 @@ class ServiceTest {
         assertEquals(setOf(2L,3L,7L), idS)
     }
 
+    @Transactional
     @Test
     fun `should delete tag with id=1 with all its tasks` () {
         tagService.deleteTagWithTasks(1L)
