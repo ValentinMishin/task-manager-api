@@ -70,7 +70,7 @@ tasks.bootRun {
 //для запуска в тестовом окружении
 tasks.register<JavaExec>("runWithTestcontainers") {
     classpath = sourceSets.test.get().runtimeClasspath
-    mainClass.set("ru.valentin.TestApplication.kt")
+    mainClass.set("ru.valentin.TestApplication")
 }
 
 tasks.test {
