@@ -13,7 +13,6 @@ class TestApplication {
                 .initializers(beans {
                     bean<TestContainersInitializer>()
                 })
-                .profiles("test")  // Используем тестовый профиль
                 .run(*args)
         }
     }
