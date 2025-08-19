@@ -36,6 +36,7 @@ class TestContainersInitializer : ApplicationContextInitializer<ConfigurableAppl
         init {
             postgres.start()
             log.info("Port: ${postgres.getMappedPort(5432)}")
+            log.info("Jdbc url: ${postgres.jdbcUrl}")
         }
     }
 
@@ -45,7 +46,8 @@ class TestContainersInitializer : ApplicationContextInitializer<ConfigurableAppl
             "spring.datasource.username=${postgres.username}",
             "spring.datasource.password=${postgres.password}",
             "spring.jpa.hibernate.ddl-auto=none",
-            "spring.jpa.show-sql=true"
+            "spring.jpa.show-sql=true",
+            "spring.properties.hibernate.format_sql=true"
         ).applyTo(applicationContext.environment)
     }
 }
