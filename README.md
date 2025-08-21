@@ -1,7 +1,7 @@
-REST API для управлениями задачами.
-JDK-11, Spring Boot 2.7, PostgreSQL.
-Тесты: testcontainers + rest-assured.
+REST API для управления задачами.
+Описание API в api-docs.json.
+Стек: Kotlin, Spring Boot(Data, MVC, Security, Cache, Validation),
+JPA(Hibernate), PostgreSQL.
+Тесты: testcontainers, rest-assured, JUnit.
 Документация API - swagger.
 Инструменты для разработки IDEA, Gradle.
-В dev в режиме игнорировать проблемы с самоподписанным сертификатом для тестирования апи.
-В контейнере порт приложения 8443, БД 5433(для подключения с хоста)
