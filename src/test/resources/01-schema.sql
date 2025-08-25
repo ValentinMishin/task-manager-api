@@ -3,6 +3,21 @@ DROP TABLE IF EXISTS tag CASCADE;
 DROP TABLE IF EXISTS task CASCADE;
 DROP TABLE IF EXISTS task_tag CASCADE;
 DROP TABLE IF EXISTS attachment CASCADE;
+DROP TABLE IF EXISTS client CASCADE;
+DROP TABLE IF EXISTS client_role CASCADE;
+
+create table client (
+	id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+	username varchar(50) not null unique,
+	password varchar(100) not null
+);
+
+create table client_role (
+	client_id BIGINT not null,
+	role varchar(50) not null,
+	FOREIGN KEY (client_id) REFERENCES client(id)
+);
+
 
 CREATE TABLE task_type (
     id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
