@@ -1,4 +1,13 @@
-TRUNCATE TABLE task_type, task_tag, task, tag RESTART IDENTITY;
+TRUNCATE TABLE client, client_role, task_type, task_tag, task, tag RESTART IDENTITY;
+-- admin : admin
+-- client : client
+insert into client (username, password) values
+('admin', '$2y$12$l9nyPaWm917Nt2zxWMU6J.ThdCnQ/RdbGlYotMeg1zc9MNPDHFfAe'),
+('client', '$2y$12$fVL.tbFwWIuwde6SAsjgOuNaxFtvff9RGEoCY4ZhANJ1om0.SIq2O');
+
+insert into client_role(client_id, role) values
+(1, 'ROLE_ADMIN'),
+(2, 'ROLE_USER');
 
 INSERT INTO task_type (code, priority, description) VALUES
 ('regular', 2, 'Обычные задачи (стандартный приоритет)'),
