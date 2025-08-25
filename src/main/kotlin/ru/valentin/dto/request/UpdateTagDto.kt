@@ -27,4 +27,10 @@ data class UpdateTagDto (
     @Schema(description = "Опциональный набор айди задач")
     // ID задач для отвязки
     val tasksToRemoveIds: Set<@NotNull(message = "ID задач не могут быть нул")Long>?
-)
+) {
+    init {
+        require(listOf(title, tasksToAddIds, newTasksToAdd, tasksToRemoveIds).any { it != null }) {
+            "Необходимо указать хотя бы одно поле для обновления"
+        }
+    }
+}
