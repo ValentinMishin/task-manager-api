@@ -5,19 +5,16 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.MessageSource
 import org.springframework.context.NoSuchMessageException
 import org.springframework.context.i18n.LocaleContextHolder
-import org.springframework.context.support.DefaultMessageSourceResolvable
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.validation.BindException
 import org.springframework.validation.FieldError
 import org.springframework.validation.ObjectError
 import org.springframework.web.bind.MethodArgumentNotValidException
-import org.springframework.web.bind.MissingServletRequestParameterException
-import org.springframework.web.bind.ServletRequestBindingException
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
-import org.springframework.web.context.request.ServletWebRequest
 import org.springframework.web.context.request.WebRequest
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
 import ru.valentin.dto.error.ErrorResponse
@@ -29,6 +26,7 @@ import ru.valentin.exception.attachment.AttachmentIsEmptyException
 import ru.valentin.exception.attachment.AttachmentNeedNameException
 import ru.valentin.exception.attachment.AttachmentNotFoundAtServerStorageException
 import ru.valentin.exception.attachment.AttachmentNotFoundException
+import ru.valentin.exception.auth.UsernameAlreadyExistsException
 import java.time.LocalDate
 import javax.persistence.EntityNotFoundException
 import javax.servlet.http.HttpServletRequest
@@ -38,9 +36,32 @@ import javax.validation.ConstraintViolationException
 class GlobalExceptionHandler(
     @Autowired private val messageSource: MessageSource
 ) {
-
     private val log = LoggerFactory.getLogger(javaClass)
 
+    @ExceptionHandler(UsernameAlreadyExistsException::class)
+    fun handleUserExistsException(ex: UsernameAlreadyExistsException):
+            ResponseEntity<ErrorResponse> {
+
+        return ResponseEntity
+            .status(HttpStatus.CONFLICT)
+            .body(ErrorResponse(
+                status = HttpStatus.CONFLICT.value(),
+                message = ex.message ?: "Пользователь уже зарегистрирован"
+            ))
+    }
+
+    @ExceptionHandler(
+        BadCredentialsException::class)
+    fun handleBadCredentialException(ex: BadCredentialsException):
+            ResponseEntity<ErrorResponse> {
+
+        return ResponseEntity
+            .status(HttpStatus.UNAUTHORIZED)
+            .body(ErrorResponse(
+                status = HttpStatus.UNAUTHORIZED.value(),
+                message = ex.message ?: "Проблема с аутентификацией, проверьте данные"
+            ))
+    }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException::class)
     fun handleTypeMismatch(
@@ -62,7 +83,7 @@ class GlobalExceptionHandler(
     }
 
 
-    // Обработка ошибок валидации @Valid для DTO
+//     Обработка ошибок валидации @Valid для DTO
     @ExceptionHandler(BindException::class)
     fun handleBindException(ex: BindException): ResponseEntity<Map<String, Any>> {
         val errors = ex.bindingResult.allErrors
@@ -136,7 +157,8 @@ class GlobalExceptionHandler(
     }
 
     @ExceptionHandler(ConstraintViolationException::class)
-    fun handleValidationExceptions(ex: ConstraintViolationException): ResponseEntity<ErrorResponse> {
+    fun handleValidationExceptions(ex: ConstraintViolationException):
+            ResponseEntity<ErrorResponse> {
         val errors = ex.constraintViolations
             .associate { it.propertyPath.toString() to it.message }
 
@@ -144,7 +166,7 @@ class GlobalExceptionHandler(
             .body(ErrorResponse(
                 status = HttpStatus.BAD_REQUEST.value(),
                 message = "Валидация не пройдена",
-                errors = errors
+                details = errors.toString() // ?
             ))
     }
 
