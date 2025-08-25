@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.test.context.ContextConfiguration
 import org.testcontainers.junit.jupiter.Testcontainers
+import ru.valentin.dto.request.AuthRequest
 import ru.valentin.dto.request.CreateTaskDto
 import ru.valentin.dto.request.CreateShortTagDto
 import java.time.LocalDate
@@ -34,6 +35,58 @@ class MVCTest () {
     fun setup() {
         RestAssured.port = port
         RestAssured.baseURI = "http://localhost"
+    }
+
+    @Test
+    fun `except 201 status as admin for create action` () {
+        val newTag1 = CreateShortTagDto("test-secure")
+
+        val response = RestAssured.given()
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .body(AuthRequest(
+                "admin", "admin"
+            ))
+            .post("/api/auth/login")
+
+        val token = response.jsonPath().getString("token")
+
+        RestAssured.given()
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .header("Authorization", "Bearer $token")
+            .body(newTag1)
+            .post("/api/tags")
+            .then()
+            .statusCode(HttpStatus.CREATED.value())
+    }
+
+    @Test
+    fun `except 403` () {
+        val newTag1 = CreateShortTagDto("")
+
+        val response = RestAssured.given()
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .body(AuthRequest(
+                "client", "client"
+            ))
+            .post("/api/auth/login")
+
+        val token = response.jsonPath().getString("token")
+
+        RestAssured.given()
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .header("Authorization", "Bearer $token")
+            .body(newTag1)
+            .post("/api/tags")
+            .then()
+            .statusCode(HttpStatus.FORBIDDEN.value())
+    }
+
+    @Test
+    fun `except 401` () {
+        RestAssured.given()
+            .get("/api/tags/with-tasks")
+            .then()
+            .statusCode(HttpStatus.UNAUTHORIZED.value())
     }
 
     @Test
